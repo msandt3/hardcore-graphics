@@ -237,7 +237,11 @@ class fourDPoint{
     last=1;
   }
   pt toPt(){
-    
    return new pt(this.x,this.y,this.z); 
+  }
+  String toString(){
+    String temp = "";
+    temp += this.x+","+this.y+","+this.z+","+this.last;
+    return temp;
   }
 }

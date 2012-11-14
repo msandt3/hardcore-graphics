@@ -2,6 +2,7 @@ class Solid{
   int k;//number of edges for computing rotational sweeps
   float d;//orientation of solid with respect to x axis
   ArrayList <Curve> curves;
+  vec I,J,K;
   Solid(Curve p){//Curve p, int k, float d, float angle){
      curves=new ArrayList<Curve>();
      curves.add(p);
@@ -22,6 +23,7 @@ class Solid{
     curves.add(temp);
     i++;
     }
+    
   }
  String toString(){
    String ret="";
@@ -51,8 +53,36 @@ class Solid{
     for(int i=0;i<curves.size();i++){
       curves.get(i).drawPoints();
       curves.get(i).briansDraw();
-    }
-
-    
+    } 
   }
+  /*void generateQuadVertices(){
+    for(int i=0;i<curves.size();i++){
+      for(int j=0;j<curves.get(i).size();j++){
+          //if(curves.)
+      } 
+    }
+  }*/
+  void calculateJ(){
+    
+    J=R(this.I);
+  }
+  void calculateI(){
+   I=curves.get(0).orientationVec().normalize(); 
+  }
+  void calculateK(){
+   K= N(J,I);
+  }
+  void incrementIX(){
+    I.x++; 
+  }
+  void incrementIY(){
+   I.y++; 
+  }
+  void decrementIX(){
+   I.x--; 
+  }
+  void decrementIY(){
+   I.y--;
+  }
+
 }

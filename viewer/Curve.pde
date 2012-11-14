@@ -452,6 +452,10 @@ pt normalNeville(pt A, pt B, pt C, float tA, float tB, float tC, float t){
     pt Q=P(B,normalizedB,C); 
     return P(P,normalizedC,Q); 
 }
+vec orientationVec(){
+  return V(pts.get(pts.size()-1),pts.get(0));
+  //Need to normalize
+}
 String toString(){
     String ret="";
     for(int i=0;i<pts.size();i++){
