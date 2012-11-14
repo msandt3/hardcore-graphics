@@ -188,6 +188,7 @@ class Curve {
   void briansDraw(){
     
     stroke(blue);
+    noFill();
     for(int i=0;i<pts.size()-1;i++){
        line(pts.get(i).x,pts.get(i).y,pts.get(i).z,pts.get(i+1).x,pts.get(i+1).y,pts.get(i+1).z);
     }

@@ -24,8 +24,11 @@ Boolean
   filterFrenetNormal=true,
   showTwistFreeNormal=false, 
   showHelpText=false;
-Curve polygon,controlPoints;
- 
+  Boolean drawRotate;
+Curve polygon,controlPoints,temp;
+RotateMatrix matrix;
+Solid s;
+int k;
 
 // String SCC = "-"; // info on current corner
    
@@ -52,6 +55,7 @@ void setup() {
   size(800, 800, OPENGL);  
   //size(800,800,800);
   setColors(); sphereDetail(6); 
+   int k=6;
   PFont font = loadFont("GillSans-24.vlw"); textFont(font, 20);  // font for writing labels on //  PFont font = loadFont("Courier-14.vlw"); textFont(font, 12); 
   // ***************** OpenGL and View setup
   glu= ((PGraphicsOpenGL) g).glu;  PGraphicsOpenGL pgl = (PGraphicsOpenGL) g;  gl = pgl.beginGL();  pgl.endGL();
@@ -59,6 +63,14 @@ void setup() {
   polygon=new Curve();
   controlPoints= new Curve();
   computePolygon();
+  matrix=new RotateMatrix();
+  temp=new Curve();
+  drawRotate=false;
+   s=new Solid(polygon);
+   s.rotationalSweep(k);
+ // println(s);
+  //matrix.setRotationAngle(PI);
+  //matrix.computeYRotate();
   // ***************** Set view  
 }
 // ******************************************************************************************************************* DRAW      
@@ -71,23 +83,25 @@ void draw() {
     fill(black); writeHelp();
     return;
     } 
-      
    polygon.briansDraw();
    controlPoints.drawPoints(); 
+
   // -------------------------------------------------------- 3D display : set up view ----------------------------------
   camera(E.x, E.y, E.z, F.x, F.y, F.z, U.x, U.y, U.z); // defines the view : eye, ctr, up
   vec Li=U(A(V(E,F),0.1*d(E,F),J));   // vec Li=U(A(V(E,F),-d(E,F),J)); 
   directionalLight(255,255,255,Li.x,Li.y,Li.z); // direction of light: behind and above the viewer
   specular(255,255,0); shininess(5);
-
+   s.draw();
+   
+  
   // -------------------------- display and edit control points of the spines and box ----------------------------------   
     if(pressed) {
          if (keyPressed&&(key=='a')) {//Picks a point on the polygon
-           controlPoints.pick(Pick()); 
+           controlPoints.pick(new pt(pmouseX,pmouseY,0)); 
        }
          if(keyPressed&&(key=='i')){
-          controlPoints.insert(Pick());
-          polygon.deepCopy(controlPoints); 
+            controlPoints.insert(new pt(pmouseX,pmouseY,0));
+            polygon.deepCopy(controlPoints); 
          }
 
      }
@@ -147,6 +161,7 @@ void mouseDragged() {
       controlPoints.dragPoint(V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J));
      }
     polygon.deepCopy(controlPoints);
+    s.rotationalSweep(k);
    } 
   if(keyPressed&&key=='s') {
      
@@ -257,7 +272,11 @@ void keyPressed() {
   if(key==',') {}
   if(key=='^') {} 
   if(key=='/') {} 
-  //if(key==' ') {} // pick focus point (will be centered) (draw & keyReleased)
+  if(key==' ') {
+    //s=s.rotationalSweep(polygon,0,0,PI,matrix);
+  Test test= new Test();
+  test.runTests();
+  } // pick focus point (will be centered) (draw & keyReleased)
 
   if(key=='0') {w=0;}
 //  for(int i=0; i<10; i++) if (key==char(i+48)) vis[i]=!vis[i];

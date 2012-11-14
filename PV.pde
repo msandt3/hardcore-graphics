@@ -64,6 +64,10 @@ class pt { float x=0,y=0,z=0;
    pt div(int f) {x/=f; y/=f; z/=f; return this;};
    pt snap(float r) {float f=r/(sqrt(sq(x)+sq(y)+sq(z))); x*=f; y*=f; z*=f; return this;};
 //   void projectOnCylinder(pt A, pt B, float r) {pt H = S(A,d(V(A,B),V(A,this))/d(V(A,B),V(A,B)),B); this.setTo(T(H,r,this));}
+  String toString(){
+    String ret= x+", "+y+", "+z;
+     return ret; 
+  }
    }
 //  void projectOnCylinder(pt A, pt B, float r) {pt H = S(A,d(V(A,B),V(A,this))/d(V(A,B),V(A,B)),B); this.setTo(T(H,r,this));}   
 // =====  point functions
@@ -218,4 +222,22 @@ pt D(pt A, pt B, pt C, pt D, float t) {float a=0, b=d(A,B), c=b+d(B,C), d=c+d(C,
 pt D(pt A, pt B, pt C, pt D, pt E, float t) {float a=0, b=d(A,B), c=b+d(B,C), d=c+d(C,D), e=d+d(D,E); return I(a,A,b,B,c,C,d,D,e,E,a+t*(e-a));}
 
 
-
+class fourDPoint{
+  float x,y,z,last;
+  fourDPoint(){
+     x=0;
+     y=0;
+     z=0;
+     last=1;
+  } 
+  void setPt(pt p){
+    x=p.x;
+    y=p.y;
+    z=p.z;
+    last=1;
+  }
+  pt toPt(){
+    
+   return new pt(this.x,this.y,this.z); 
+  }
+}
