@@ -147,6 +147,39 @@ vec[] Nt = new vec [maxnt];                // triangles normals
  void rememberCounters() {nvr=nv; ntr=nt; ncr=nc;}
  void restoreCounters() {nv=nvr; nt=ntr; nc=ncr;}
 
+ void makeRevolution(Solid s) {
+  Curve current;
+  int faces = s.k;
+  if (faces == 0) return;
+
+  int n = s.curves.get(0).pts.size(); // number of points on curve
+  int firstV = addVertex(s.curves.get(0).pts.get(0));
+  int lastV = addVertex(s.curves.get(0).pts.get(n - 1));
+  int[][] vertices = new int[faces][n];
+  for (int i = 0; i < faces; i++) { // loop through faces
+    current = s.curves.get(i);
+    vertices[i][0] = firstV;
+    vertices[i][n - 1] = firstV;
+    for (int j = 1; j < n - 1; j++) {
+      vertices[i][j] = addVertex(s.curves.get(i).pts.get(j));
+    }
+  }
+
+  for (int i = 0; i < faces; i++) {
+    int[] currentFace = vertices[i];
+    int[] nextFace = vertices[(i + 1) % faces];
+    for (int j = 0; j < n - 1; j++) {
+      if (j == 0) {
+        addTriangle(firstV, currentFace[j + 1], nextFace[j + 1]);
+      } else if (j == n - 2) {
+        addTriangle(currentFace[j], nextFace[j], lastV);
+      } else {
+        addQuad(currentFace[j], currentFace[j + 1], nextFace[j], nextFace[j + 1]);
+      }
+    }
+  }
+ }
+
  void makeGrid (int w) { // make a 2D grid of w x w vertices
    for (int i=0; i<w; i++) {for (int j=0; j<w; j++) { G[w*i+j].set(height*.8*j/(w-1)+height/10,height*.8*i/(w-1)+height/10,0);}}    
    for (int i=0; i<w-1; i++) {for (int j=0; j<w-1; j++) {                  // define the triangles for the grid
@@ -284,6 +317,10 @@ void makeDChain (float w, int m) { // make a chain of size 2w wiht m elements
   
  void addTriangle(int i, int j, int k) {V[nc++]=i; V[nc++]=j; V[nc++]=k; visible[nt++]=true;} // adds a triangle
  void addTriangle(int i, int j, int k, int m) {V[nc++]=i; V[nc++]=j; V[nc++]=k; tm[nt]=m; visible[nt++]=true; } // adds a triangle
+ void addQuad(int i, int j, int k, int l) {
+  addTriangle(i, j, k);
+  addTriangle(j, k, l);
+ }
 
  Mesh updateON() {computeO(); normals(); return this;} // recomputes O and normals
  
@@ -543,7 +580,8 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
   void showShrunkOffsetT(float h) {int t=t(cc); if(visible[t]) showShrunkOffset(g(3*t),g(3*t+1),g(3*t+2),r,h);}
 
   // display front and back triangles shrunken if showEdges  
-  Boolean frontFacing(int t) {return !cw(E,g(3*t),g(3*t+1),g(3*t+2)); } 
+  //Boolean frontFacing(int t) {return !cw(E,g(3*t),g(3*t+1),g(3*t+2)); } 
+  Boolean frontFacing(int t) {return true; } 
   void showFrontTrianglesSimple() {for(int t=0; t<nt; t++) if(frontFacing(t)) {if(showEdges) showShrunkT(t,1); else shade(t);}};  
   void showFront() {for(int t=0; t<nt; t++) if(frontFacing(t)) shade(t);}  
   void showTs() {for(int t=0; t<nt; t++) simpleShade(t);}  
