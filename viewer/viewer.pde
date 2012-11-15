@@ -92,7 +92,7 @@ void draw() {
   vec Li=U(A(V(E,F),0.1*d(E,F),J));   // vec Li=U(A(V(E,F),-d(E,F),J)); 
   directionalLight(255,255,255,Li.x,Li.y,Li.z); // direction of light: behind and above the viewer
   specular(255,255,0); shininess(5);
-   s.draw();
+  s.draw();
   stroke(black);
   show(polygon.pts.get(polygon.pts.size()-1),s.I);
   show(polygon.pts.get(polygon.pts.size()-1),s.J);
@@ -171,7 +171,30 @@ void mouseDragged() {
    } 
   if(keyPressed&&key=='s') {
      
-     } // move selected vertex of curve C in screen plane
+     }
+  if(keyPressed&&key=='o'){
+    vec tempI = s.I;
+    if(mouseX-pmouseX > 0){
+      //s.incrementIX();
+      tempI.x++;
+      s.orientTo(tempI);
+    }
+    else if(mouseX-pmouseX < 0){
+      //s.decrementIX();
+      tempI.x--;
+      s.orientTo(tempI);
+    }
+    else if(mouseY-pmouseY > 0){
+      //s.incrementIY();
+      tempI.y++;
+      s.orientTo(tempI);
+    }
+    else if(mouseY-pmouseY < 0){
+      tempI.y--;
+      s.orientTo(tempI);
+    }
+  }  
+     // move selected vertex of curve C in screen plane
   if(keyPressed&&key=='b') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
   if(keyPressed&&key=='v') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J) ); } // move selected vertex of curve Cb in XZ
   if(keyPressed&&key=='x') {M.add(float(mouseX-pmouseX),I).add(-float(mouseY-pmouseY),J); M.normals();} // move selected vertex in screen plane

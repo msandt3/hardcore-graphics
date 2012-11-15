@@ -64,13 +64,13 @@ class Solid{
   }*/
   void calculateJ(){
     
-    J=R(this.I);
+    J=R(this.I).normalize();
   }
   void calculateI(){
    I=curves.get(0).orientationVec().normalize(); 
   }
   void calculateK(){
-   K= N(J,I);
+   K= N(J,I).normalize();
   }
   void incrementIX(){
     I.x++; 
@@ -84,5 +84,46 @@ class Solid{
   void decrementIY(){
    I.y--;
   }
+  void orientTo(vec newOr){
+    //normalize our new orientation vector
+    newOr = newOr.normalize();
+    //determine if we're rotating about J or K
+    float jangle = (angle(newOr,this.J)-angle(this.I,this.J));
+    float kangle = (angle(newOr,this.K)-angle(this.I,this.K));
+    fourDPoint pt=new fourDPoint();
+    //rotating about J 
+    if( jangle != 0.0){
+      RotateMatrix orientRotate = new RotateMatrix();
+      orientRotate.computeOrientationRotate(jangle,this.J.normalize());
+      for(int i=0; i<curves.size(); i++){
+        for(int j=0; j<curves.get(i).pts.size(); j++){
+          pt.setPt(curves.get(i).pts.get(j));
+          pt temp = orientRotate.matrixMultiplication(pt).toPt();
+          curves.get(i).pts.set(j,temp);
+        }
+      }
+      //this.K = N(J,I).normalize();
+          
+    }
+    //rotating about K
+    else{
+      RotateMatrix orientRotate = new RotateMatrix();
+      print(kangle+"\n");
+      orientRotate.computeOrientationRotate(kangle,this.K.normalize());
+      print(orientRotate.toString()+"\n");
+      for(int i=0; i<curves.size(); i++){
+        for(int j=0; j<curves.get(i).pts.size(); j++){
+          pt.setPt(curves.get(i).pts.get(j));
+          pt temp = orientRotate.matrixMultiplication(pt).toPt();
+          curves.get(i).pts.set(j,temp);
+        }
+      }
+      //double check this to make sure we arent switching vector directions
+      //this.J = N(K,I).normalize();
+    }
+    this.I = newOr;
+  }
+    
+    
 
 }
