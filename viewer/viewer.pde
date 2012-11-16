@@ -11,8 +11,7 @@ GLU glu;
 
 // ****************************** GLOBAL VARIABLES FOR DISPLAY OPTIONS *********************************
 Boolean 
-  //showMesh=true,
-  showMesh=false,
+  showMesh=true,
   translucent=false,   
   showSilhouette=true, 
   showNMBE=true,
@@ -71,6 +70,11 @@ void setup() {
    s.calculateI();
    s.calculateJ();
    s.calculateK();
+
+  M.declareVectors();
+   M.makeRevolution(s);
+
+
 
   // ***************** Set view  
 }
@@ -167,6 +171,8 @@ void mouseDragged() {
     s.curves.clear();
     s.curves.add(polygon);
     s.rotationalSweep(numRotations);
+    M.resetCounters();
+    M.makeRevolution(s);
     
    } 
   if(keyPressed&&key=='s') {
@@ -332,7 +338,6 @@ void snapPicture() {saveFrame("PICTURES/P"+nf(pictureCounter++,3)+".jpg"); snapp
 void computePolygon(){//used for loading and subdividing curve
   controlPoints.loadPts();
   polygon.deepCopy(controlPoints);
-  polygon=polygon.subdivision(); 
 }//End of computePolygon
 
  

@@ -10,6 +10,7 @@ class Solid{
   }
   void rotationalSweep(int k){
     //need to implement
+    this.k = k;
     fourDPoint pt=new fourDPoint();
     matrix.computeYRotate(2*PI/k);
     Curve temp;
