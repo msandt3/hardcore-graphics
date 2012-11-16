@@ -170,7 +170,7 @@ vec[] Nt = new vec [maxnt];                // triangles normals
     int[] nextFace = vertices[(i + 1) % faces];
     for (int j = 0; j < n - 1; j++) {
       if (j == 0) {
-        addTriangle(firstV, currentFace[j + 1], nextFace[j + 1]);
+        addTriangle(currentFace[j + 1], firstV, nextFace[j + 1]);
       } else if (j == n - 2) {
         addTriangle(currentFace[j], nextFace[j], lastV);
       } else {
@@ -318,7 +318,7 @@ void makeDChain (float w, int m) { // make a chain of size 2w wiht m elements
  void addTriangle(int i, int j, int k) {V[nc++]=i; V[nc++]=j; V[nc++]=k; visible[nt++]=true;} // adds a triangle
  void addTriangle(int i, int j, int k, int m) {V[nc++]=i; V[nc++]=j; V[nc++]=k; tm[nt]=m; visible[nt++]=true; } // adds a triangle
  void addQuad(int i, int j, int k, int l) {
-  addTriangle(i, j, k);
+  addTriangle(k, j, i);
   addTriangle(j, k, l);
  }
 
@@ -580,8 +580,8 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
   void showShrunkOffsetT(float h) {int t=t(cc); if(visible[t]) showShrunkOffset(g(3*t),g(3*t+1),g(3*t+2),r,h);}
 
   // display front and back triangles shrunken if showEdges  
-  //Boolean frontFacing(int t) {return !cw(E,g(3*t),g(3*t+1),g(3*t+2)); } 
-  Boolean frontFacing(int t) {return true; } 
+  Boolean frontFacing(int t) {return !cw(E,g(3*t),g(3*t+1),g(3*t+2)); } 
+  //Boolean frontFacing(int t) {return true; } 
   void showFrontTrianglesSimple() {for(int t=0; t<nt; t++) if(frontFacing(t)) {if(showEdges) showShrunkT(t,1); else shade(t);}};  
   void showFront() {for(int t=0; t<nt; t++) if(frontFacing(t)) shade(t);}  
   void showTs() {for(int t=0; t<nt; t++) simpleShade(t);}  
