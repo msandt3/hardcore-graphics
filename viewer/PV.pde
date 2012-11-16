@@ -245,3 +245,10 @@ class fourDPoint{
     return temp;
   }
 }
+pt globalToLocal(pt global, vec I, vec J, vec K, pt O){
+  //Need to change to 3D
+  float x=d(V(O,global),J);
+  float y=d(V(O,global),I);
+  float z=d(V(O,global),K);
+  return new pt(x,y,z);
+}

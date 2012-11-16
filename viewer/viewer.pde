@@ -179,26 +179,21 @@ void mouseDragged() {
      
      }
   if(keyPressed&&key=='o'){
-    vec tempI = s.I;
-    if(mouseX-pmouseX > 0){
-      //s.incrementIX();
-      tempI.x++;
-      s.orientTo(tempI);
-    }
-    else if(mouseX-pmouseX < 0){
-      //s.decrementIX();
-      tempI.x--;
-      s.orientTo(tempI);
-    }
-    else if(mouseY-pmouseY > 0){
-      //s.incrementIY();
-      tempI.y++;
-      s.orientTo(tempI);
-    }
-    else if(mouseY-pmouseY < 0){
-      tempI.y--;
-      s.orientTo(tempI);
-    }
+     //Solid localSolid=s.toLocalSolid(s.I,s.J,s.K);
+     if(mouseX-pmouseX<0){
+       s.decrementIX();
+     }
+     else if(mouseX-pmouseX>0){
+       s.incrementIX(); 
+     }
+     else if(mouseY-pmouseY>0){
+       s.incrementIY();
+     }
+     else if(mouseY-pmouseY<0){
+      s.decrementIY(); 
+     }
+     s.calculateJ();
+     s.calculateK();
   }  
      // move selected vertex of curve C in screen plane
   if(keyPressed&&key=='b') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
@@ -303,8 +298,20 @@ void keyPressed() {
   if(key=='<') {}
   if(key=='>') {if (shrunk==0) shrunk=1; else shrunk=0;}
   if(key=='?') {showHelpText=!showHelpText;}
-  if(key=='.') {} // pick corner
-  if(key==',') {}
+    if(key=='.') {
+    numRotations++;
+    s.curves.clear();
+    s.curves.add(polygon);
+    s.rotationalSweep(numRotations);
+  } // pick corner
+  if(key==',') {
+    if(numRotations>2){
+    numRotations--;
+    s.curves.clear();
+    s.curves.add(polygon);
+    s.rotationalSweep(numRotations);
+    }
+  }
   if(key=='^') {} 
   if(key=='/') {} 
   if(key==' ') {
