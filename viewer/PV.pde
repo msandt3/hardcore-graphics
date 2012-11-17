@@ -68,7 +68,17 @@ class pt { float x=0,y=0,z=0;
     String ret= x+", "+y+", "+z;
      return ret; 
   }
-   }
+  pt toLocalPt(vec I, vec J, vec K, pt O){//Returns a 
+  float x=d(V(O,this),I);
+  float y=d(V(O,this),J);
+  float z=d(V(O,this),K);
+  return new pt(x,y,z);
+  }//End of global To Local
+  pt toGlobalPt(vec I, vec J, vec K, pt O){
+    pt P= P(O,A(A(V(this.x,I),V(this.y,J)),V(this.z,K))); 
+    return P;
+  }
+}
 //  void projectOnCylinder(pt A, pt B, float r) {pt H = S(A,d(V(A,B),V(A,this))/d(V(A,B),V(A,B)),B); this.setTo(T(H,r,this));}   
 // =====  point functions
 pt P() {return new pt(); };                                            // point (x,y,z)
@@ -245,10 +255,4 @@ class fourDPoint{
     return temp;
   }
 }
-pt globalToLocal(pt global, vec I, vec J, vec K, pt O){
-  //Need to change to 3D
-  float x=d(V(O,global),J);
-  float y=d(V(O,global),I);
-  float z=d(V(O,global),K);
-  return new pt(x,y,z);
-}
+

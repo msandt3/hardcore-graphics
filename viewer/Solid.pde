@@ -8,6 +8,9 @@ class Solid{
      curves.add(p);
    
   }
+  Solid(){
+    curves=new ArrayList<Curve>();
+  }
   void rotationalSweep(int k){
     //need to implement
     this.k = k;
@@ -124,7 +127,18 @@ class Solid{
     }
     this.I = newOr;
   }
-    
-    
-
+  Solid toLocalSolid(vec I, vec J, vec K, pt O){
+    Solid temp= new Solid();
+    for(int i=0; i<curves.size();i++){
+     temp.curves.add(this.curves.get(i).toLocalCurve(I,J,K,O));
+    }
+    return temp;
+  }
+  Solid toGlobalSolid(vec I, vec J, vec K, pt O){
+    Solid temp= new Solid();
+    for(int i=0; i<curves.size();i++){
+     temp.curves.add(this.curves.get(i).toGlobalCurve(I,J,K,O));
+    }
+    return temp;
+  } 
 }

@@ -28,7 +28,7 @@ Curve polygon,controlPoints,temp;
 RotateMatrix matrix;
 Solid s;
 int numRotations;
-
+ Test test;
 // String SCC = "-"; // info on current corner
    
 // ****************************** VIEW PARAMETERS *******************************************************
@@ -47,7 +47,8 @@ float sampleDistance=1;
 int nsteps=250; // number of smaples along spine
 float sd=10; // sample distance for spine
 pt sE = P(), sF = P(); vec sU=V(); //  view parameters (saved with 'j'
-
+pt O;
+boolean testBoolean;
 
 // *******************************************************************************************************************    SETUP
 void setup() {
@@ -70,10 +71,11 @@ void setup() {
    s.calculateI();
    s.calculateJ();
    s.calculateK();
-
-  M.declareVectors();
+   O= s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
+   M.declareVectors();
    M.makeRevolution(s);
-
+   testBoolean=false;
+   test= new Test();
 
 
   // ***************** Set view  
@@ -88,24 +90,32 @@ void draw() {
     fill(black); writeHelp();
     return;
     } 
-   polygon.briansDraw();
-   controlPoints.drawPoints(); 
-
+   if(!testBoolean){
+     polygon.briansDraw();
+     controlPoints.drawPoints(); 
+   }
   // -------------------------------------------------------- 3D display : set up view ----------------------------------
   camera(E.x, E.y, E.z, F.x, F.y, F.z, U.x, U.y, U.z); // defines the view : eye, ctr, up
   vec Li=U(A(V(E,F),0.1*d(E,F),J));   // vec Li=U(A(V(E,F),-d(E,F),J)); 
   directionalLight(255,255,255,Li.x,Li.y,Li.z); // direction of light: behind and above the viewer
   specular(255,255,0); shininess(5);
-  s.draw();
-  stroke(black);
-  show(polygon.pts.get(polygon.pts.size()-1),s.I);
-  show(polygon.pts.get(polygon.pts.size()-1),s.J);
-  show(polygon.pts.get(polygon.pts.size()-1),s.K);
+  if(testBoolean){
+    test.testToLocalCurve();
+    
+  }
+  else{
+    s.draw();
+    stroke(black);
+  //show(polygon.pts.get(polygon.pts.size()-1),s.I);
+  //show(polygon.pts.get(polygon.pts.size()-1),s.J);
+  //show(polygon.pts.get(polygon.pts.size()-1),s.K);
   
   // -------------------------- display and edit control points of the spines and box ----------------------------------   
     if(pressed) {
          if (keyPressed&&(key=='a')) {//Picks a point on the polygon
            controlPoints.pick(new pt(pmouseX,pmouseY,0)); 
+            polygon.deepCopy(controlPoints); 
+            
        }
          if(keyPressed&&(key=='i')){
             controlPoints.insert(new pt(pmouseX,pmouseY,0));
@@ -150,8 +160,8 @@ void draw() {
   // -------------------------------------------------------- SNAP PICTURE ---------------------------------- 
    if(snapping) snapPicture(); // does not work for a large screen
     pressed=false;
-
- } // end draw
+  }
+} // end draw
  
  
  // ****************************************************************************************************************************** INTERRUPTS
@@ -179,7 +189,8 @@ void mouseDragged() {
      
      }
   if(keyPressed&&key=='o'){
-     //Solid localSolid=s.toLocalSolid(s.I,s.J,s.K);
+    
+     //Solid localSolid=s.toLocalSolid(s.I,s.J,s.K,O);
      if(mouseX-pmouseX<0){
        s.decrementIX();
      }
@@ -194,6 +205,7 @@ void mouseDragged() {
      }
      s.calculateJ();
      s.calculateK();
+     //s=localSolid.toGlobalSolid(s.I,s.J,s.K,O);
   }  
      // move selected vertex of curve C in screen plane
   if(keyPressed&&key=='b') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
@@ -316,9 +328,9 @@ void keyPressed() {
   if(key=='/') {} 
   if(key==' ') {
     //s=s.rotationalSweep(polygon,0,0,PI,matrix);
-  Test test= new Test();
+ 
   test.runTests();
-  
+  testBoolean=!testBoolean;
   } // pick focus point (will be centered) (draw & keyReleased)
 
   if(key=='0') {w=0;}
