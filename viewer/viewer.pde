@@ -49,6 +49,7 @@ float sd=10; // sample distance for spine
 pt sE = P(), sF = P(); vec sU=V(); //  view parameters (saved with 'j'
 pt O;
 boolean testBoolean;
+ArrayList<Curve> orientationTest;
 
 // *******************************************************************************************************************    SETUP
 void setup() {
@@ -76,8 +77,10 @@ void setup() {
    M.makeRevolution(s);
    testBoolean=false;
    test= new Test();
-
-
+   orientationTest= test.testToLocalCurve();
+   for(int i=0;i<orientationTest.size();i++){
+     println(orientationTest.get(i));  
+   } 
   // ***************** Set view  
 }
 // ******************************************************************************************************************* DRAW      
@@ -100,8 +103,11 @@ void draw() {
   directionalLight(255,255,255,Li.x,Li.y,Li.z); // direction of light: behind and above the viewer
   specular(255,255,0); shininess(5);
   if(testBoolean){
-    test.testToLocalCurve();
     
+    for(int i=0;  i<orientationTest.size();i++){
+      orientationTest.get(i).briansDraw(); 
+      stroke(i*100);
+    }
   }
   else{
     s.draw();
