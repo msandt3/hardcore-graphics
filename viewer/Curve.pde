@@ -3,7 +3,7 @@ class Curve {
   int n=0;                            // current number of control points
   pt [] P = new pt[5000];            //  array of points
   ArrayList<pt> pts = new ArrayList<pt>(5000);
- 
+   
   vec [] Nx = new vec[5000];          // twist free normal vectors 
   vec [] Ny = new vec[5000];          // twist free binormal vectors
   vec [] Nfx = new vec[5000];          // Frenet normal vectors
@@ -452,6 +452,10 @@ pt normalNeville(pt A, pt B, pt C, float tA, float tB, float tC, float t){
     pt Q=P(B,normalizedB,C); 
     return P(P,normalizedC,Q); 
 }
+vec orientationVec(){
+  return V(pts.get(pts.size()-1),pts.get(0));
+  //Need to normalize
+}
 String toString(){
     String ret="";
     for(int i=0;i<pts.size();i++){
@@ -459,4 +463,27 @@ String toString(){
     }
     return ret;
 }
+  Curve toLocalCurve(vec I, vec J, vec K, pt O){
+    Curve temp= new Curve();
+     for(int i=0;i<pts.size();i++){
+       temp.pts.add(this.pts.get(i).toLocalPt(I,J,K,O)); 
+     }
+     return temp;
+  }
+  Curve toGlobalCurve(vec I,vec J,vec K, pt O){
+    Curve temp = new Curve();
+    for(int i=0;i<pts.size();i++){
+      temp.pts.add(this.pts.get(i).toGlobalPt(I,J,K,O));
+    }
+    return temp;
+  }
+  vec calculateJ(){
+    return R(this.calculateI()).normalize();
+  }
+  vec calculateI(){
+   return orientationVec().normalize(); 
+  }
+  vec calculateK(){
+   return N(calculateJ(),calculateI()).normalize();
+  }
 }  // end class Curve
