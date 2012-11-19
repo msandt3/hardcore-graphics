@@ -20,7 +20,10 @@ class vec { float x=0,y=0,z=0;
    float norm() {return(sqrt(sq(x)+sq(y)+sq(z)));}; 
    vec normalize() {float n=norm(); if (n>0.000001) {div(n);}; return this;};
    vec rotate(float a, vec I, vec J) {float x=d(this,I), y=d(this,J); float c=cos(a), s=sin(a); add(x*c-x-y*s,I); add(x*s+y*c-y,J); return this; }; // Rotate by a in plane (I,J)
-   } ;
+   String toString(){
+     return "X: "+this.x+", Y: "+this.y+", "+this.z;
+   }  
+ } ;
   
 // ===== vector functions
 vec V() {return new vec(); };                                                                          // make vector (x,y,z)
@@ -68,12 +71,10 @@ class pt { float x=0,y=0,z=0;
     String ret= x+", "+y+", "+z;
      return ret; 
   }
-<<<<<<< HEAD
-   }
-=======
   pt toLocalPt(vec I, vec J, vec K, pt O){//Returns a 
   float x=d(V(O,this),I);
   float y=d(V(O,this),J);
+ // K=V(-1,K);
   float z=d(V(O,this),K);
   return new pt(x,y,z);
   }//End of global To Local
@@ -82,7 +83,6 @@ class pt { float x=0,y=0,z=0;
     return P;
   }
 }
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
 //  void projectOnCylinder(pt A, pt B, float r) {pt H = S(A,d(V(A,B),V(A,this))/d(V(A,B),V(A,B)),B); this.setTo(T(H,r,this));}   
 // =====  point functions
 pt P() {return new pt(); };                                            // point (x,y,z)
@@ -251,12 +251,6 @@ class fourDPoint{
     last=1;
   }
   pt toPt(){
-<<<<<<< HEAD
-    
-   return new pt(this.x,this.y,this.z); 
-  }
-}
-=======
    return new pt(this.x,this.y,this.z); 
   }
   String toString(){
@@ -266,4 +260,3 @@ class fourDPoint{
   }
 }
 
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546

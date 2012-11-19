@@ -27,13 +27,8 @@ Boolean
 Curve polygon,controlPoints,temp;
 RotateMatrix matrix;
 Solid s;
-<<<<<<< HEAD
-int k;
-
-=======
 int numRotations;
  Test test;
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
 // String SCC = "-"; // info on current corner
    
 // ****************************** VIEW PARAMETERS *******************************************************
@@ -55,17 +50,14 @@ pt sE = P(), sF = P(); vec sU=V(); //  view parameters (saved with 'j'
 pt O;
 boolean testBoolean;
 ArrayList<Curve> orientationTest;
+int counter;
 
 // *******************************************************************************************************************    SETUP
 void setup() {
   size(800, 800, OPENGL);  
   //size(800,800,800);
   setColors(); sphereDetail(6); 
-<<<<<<< HEAD
-   int k=6;
-=======
    numRotations=6;
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
   PFont font = loadFont("GillSans-24.vlw"); textFont(font, 20);  // font for writing labels on //  PFont font = loadFont("Courier-14.vlw"); textFont(font, 12); 
   // ***************** OpenGL and View setup
   glu= ((PGraphicsOpenGL) g).glu;  PGraphicsOpenGL pgl = (PGraphicsOpenGL) g;  gl = pgl.beginGL();  pgl.endGL();
@@ -77,26 +69,18 @@ void setup() {
   temp=new Curve();
   drawRotate=false;
    s=new Solid(polygon);
-<<<<<<< HEAD
-   s.rotationalSweep(k);
- // println(s);
-  //matrix.setRotationAngle(PI);
-  //matrix.computeYRotate();
-=======
    s.rotationalSweep(numRotations);
    s.calculateI();
    s.calculateJ();
    s.calculateK();
-   O= s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
+   O =s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
    M.declareVectors();
    M.makeRevolution(s);
    testBoolean=false;
    test= new Test();
    orientationTest= test.testToLocalCurve();
-   for(int i=0;i<orientationTest.size();i++){
-     println(orientationTest.get(i));  
-   } 
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
+   counter=0;
+   
   // ***************** Set view  
 }
 // ******************************************************************************************************************* DRAW      
@@ -109,30 +93,20 @@ void draw() {
     fill(black); writeHelp();
     return;
     } 
-<<<<<<< HEAD
-   polygon.briansDraw();
-   controlPoints.drawPoints(); 
-
-=======
    if(!testBoolean){
      polygon.briansDraw();
      controlPoints.drawPoints(); 
    }
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
   // -------------------------------------------------------- 3D display : set up view ----------------------------------
   camera(E.x, E.y, E.z, F.x, F.y, F.z, U.x, U.y, U.z); // defines the view : eye, ctr, up
   vec Li=U(A(V(E,F),0.1*d(E,F),J));   // vec Li=U(A(V(E,F),-d(E,F),J)); 
   directionalLight(255,255,255,Li.x,Li.y,Li.z); // direction of light: behind and above the viewer
   specular(255,255,0); shininess(5);
-<<<<<<< HEAD
-   s.draw();
-   
-=======
   if(testBoolean){
     
     for(int i=0;  i<orientationTest.size();i++){
       orientationTest.get(i).briansDraw(); 
-      stroke(i*100);
+       
     }
   }
   else{
@@ -141,17 +115,13 @@ void draw() {
   //show(polygon.pts.get(polygon.pts.size()-1),s.I);
   //show(polygon.pts.get(polygon.pts.size()-1),s.J);
   //show(polygon.pts.get(polygon.pts.size()-1),s.K);
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
   
   // -------------------------- display and edit control points of the spines and box ----------------------------------   
     if(pressed) {
          if (keyPressed&&(key=='a')) {//Picks a point on the polygon
            controlPoints.pick(new pt(pmouseX,pmouseY,0)); 
-<<<<<<< HEAD
-=======
             polygon.deepCopy(controlPoints); 
             
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
        }
          if(keyPressed&&(key=='i')){
             controlPoints.insert(new pt(pmouseX,pmouseY,0));
@@ -180,9 +150,9 @@ void draw() {
  if (keyPressed&&key==' ') T.set(Pick()); // sets point T on the surface where the mouse points. The camera will turn toward's it when the ';' key is released
   SetFrame(Q,I,J,K);  // showFrame(Q,I,J,K,30);  // sets frame from picked points and screen axes
   // rotate view 
-  if(!keyPressed&&mousePressed) {E=R(E,  PI*float(mouseX-pmouseX)/width,I,K,F); E=R(E,-PI*float(mouseY-pmouseY)/width,J,K,F); } // rotate E around F 
+ /* if(!keyPressed&&mousePressed) {E=R(E,  PI*float(mouseX-pmouseX)/width,I,K,F); E=R(E,-PI*float(mouseY-pmouseY)/width,J,K,F); } // rotate E around F 
   if(keyPressed&&key=='D'&&mousePressed) {E=P(E,-float(mouseY-pmouseY),K); }  //   Moves E forward/backward
-  if(keyPressed&&key=='d'&&mousePressed) {E=P(E,-float(mouseY-pmouseY),K);U=R(U, -PI*float(mouseX-pmouseX)/width,I,J); }//   Moves E forward/backward and rotatees around (F,Y)
+  if(keyPressed&&key=='d'&&mousePressed) {E=P(E,-float(mouseY-pmouseY),K);U=R(U, -PI*float(mouseX-pmouseX)/width,I,J); }//   Moves E forward/backward and rotatees around (F,Y)*/
   
   // -------------------------------------------------------- Disable z-buffer to display occluded silhouettes and other things ---------------------------------- 
   hint(DISABLE_DEPTH_TEST);  // show on top
@@ -214,26 +184,24 @@ void mouseDragged() {
       controlPoints.dragPoint(V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J));
      }
     polygon.deepCopy(controlPoints);
-<<<<<<< HEAD
-    s.rotationalSweep(k);
-=======
     s.curves.clear();
     s.curves.add(polygon);
     s.rotationalSweep(numRotations);
     M.resetCounters();
     M.makeRevolution(s);
     
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
    } 
   if(keyPressed&&key=='s') {
      
      }
   if(keyPressed&&key=='o'){
-    
-     //Solid localSolid=s.toLocalSolid(s.I,s.J,s.K,O);
+     println("counter: "+counter);
+     Solid localSolid=s.toLocalSolid(s.I,s.J,s.K,O);
+     
+     println("Local Solid:" +localSolid);
      if(mouseX-pmouseX<0){
        s.decrementIX();
-     }
+    }
      else if(mouseX-pmouseX>0){
        s.incrementIX(); 
      }
@@ -245,7 +213,12 @@ void mouseDragged() {
      }
      s.calculateJ();
      s.calculateK();
-     //s=localSolid.toGlobalSolid(s.I,s.J,s.K,O);
+
+     println(s.I);
+     
+     s = localSolid.toGlobalSolid(s.I,s.J,s.K,O);
+     println("S: "+s);
+     counter++;
   }  
      // move selected vertex of curve C in screen plane
   if(keyPressed&&key=='b') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
@@ -368,14 +341,9 @@ void keyPressed() {
   if(key=='/') {} 
   if(key==' ') {
     //s=s.rotationalSweep(polygon,0,0,PI,matrix);
-<<<<<<< HEAD
-  Test test= new Test();
-  test.runTests();
-=======
  
   test.runTests();
   testBoolean=!testBoolean;
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
   } // pick focus point (will be centered) (draw & keyReleased)
 
   if(key=='0') {w=0;}

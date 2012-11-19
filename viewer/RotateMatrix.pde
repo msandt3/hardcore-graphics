@@ -7,8 +7,6 @@ class RotateMatrix{
   RotateMatrix(int xD, int yD){
    int [][] matrix= new int [xD][yD];
  } 
-<<<<<<< HEAD
-=======
  void setValues(ArrayList<Float> values){
    int k=0;
    for(int i=0;i<4;i++){
@@ -20,7 +18,6 @@ class RotateMatrix{
      } 
    }
  }
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
  void computeYRotate(float angle){
      matrix[0][0]=cos(angle);
      matrix[0][2]=sin(angle);
@@ -28,17 +25,6 @@ class RotateMatrix{
      matrix[2][2]=cos(angle);
      matrix[1][1]=1;
      matrix[3][3]=1;
-<<<<<<< HEAD
-     matrix[0][1]=0;
-     matrix[0][3]=0;
-     matrix[1][0]=0;
-     matrix[1][2]=0;
-     matrix[2][1]=0;
-     matrix[2][3]=0;
-     matrix[3][0]=0;
-     matrix[3][1]=0;
-     matrix[3][2]=0;
-=======
  }
  void computeOrientationRotate(float angle, vec OR){
    //first row
@@ -55,19 +41,11 @@ class RotateMatrix{
    matrix[2][2] = cos(angle) + sq(OR.z)*(1-cos(angle));
    //fourth row
    matrix[3][3] = 1;
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
  }
  void changeBasisMatrix(){
   //
  }
  fourDPoint matrixMultiplication(fourDPoint pt){
-<<<<<<< HEAD
-    pt.x=matrix[0][0]*pt.x+matrix[0][1]*pt.y+matrix[0][2]*pt.z +matrix[0][3]*pt.last;
-    pt.y=matrix[1][0]*pt.x+matrix[1][1]*pt.y+matrix[1][2]*pt.z +matrix[1][3]*pt.last;
-    pt.z=matrix[2][0]*pt.x+matrix[2][1]*pt.y+matrix[2][2]*pt.z +matrix[2][3]*pt.last;
-    pt.last=1;
-    return pt;
-=======
    fourDPoint temp= new fourDPoint();
     temp.x=matrix[0][0]*pt.x+matrix[0][1]*pt.y+matrix[0][2]*pt.z +matrix[0][3]*pt.last;
     temp.y=matrix[1][0]*pt.x+matrix[1][1]*pt.y+matrix[1][2]*pt.z +matrix[1][3]*pt.last;
@@ -82,6 +60,5 @@ class RotateMatrix{
      ret+="\n";
     } 
     return ret;
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
  }
 }

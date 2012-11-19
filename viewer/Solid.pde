@@ -2,26 +2,18 @@ class Solid{
   int k;//number of edges for computing rotational sweeps
   float d;//orientation of solid with respect to x axis
   ArrayList <Curve> curves;
-<<<<<<< HEAD
-=======
   vec I,J,K;
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
   Solid(Curve p){//Curve p, int k, float d, float angle){
      curves=new ArrayList<Curve>();
      curves.add(p);
    
   }
-<<<<<<< HEAD
-  void rotationalSweep(int k){
-    //need to implement
-=======
   Solid(){
     curves=new ArrayList<Curve>();
   }
   void rotationalSweep(int k){
     //need to implement
     this.k = k;
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
     fourDPoint pt=new fourDPoint();
     matrix.computeYRotate(2*PI/k);
     Curve temp;
@@ -35,10 +27,7 @@ class Solid{
     curves.add(temp);
     i++;
     }
-<<<<<<< HEAD
-=======
     
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
   }
  String toString(){
    String ret="";
@@ -68,12 +57,6 @@ class Solid{
     for(int i=0;i<curves.size();i++){
       curves.get(i).drawPoints();
       curves.get(i).briansDraw();
-<<<<<<< HEAD
-    }
-
-    
-  }
-=======
     } 
   }
   /*void generateQuadVertices(){
@@ -94,16 +77,20 @@ class Solid{
    K= N(J,I).normalize();
   }
   void incrementIX(){
-    I.x++; 
+    I.x+=.5;
+    I.normalize(); 
   }
   void incrementIY(){
-   I.y++; 
+   I.y+=.5; 
+   I.normalize();
   }
   void decrementIX(){
-   I.x--; 
+   I.x-=.5; 
+   I.normalize();
   }
   void decrementIY(){
-   I.y--;
+   I.y-=.5;
+   I.normalize();
   }
   void orientTo(vec newOr){
     //normalize our new orientation vector
@@ -153,10 +140,15 @@ class Solid{
   }
   Solid toGlobalSolid(vec I, vec J, vec K, pt O){
     Solid temp= new Solid();
+    println("Number of Curves: "+this.curves.size());
     for(int i=0; i<curves.size();i++){
+     println("i: "+i);
      temp.curves.add(this.curves.get(i).toGlobalCurve(I,J,K,O));
     }
+    println("temp Solid: "+temp.toString());
+    temp.I=I.normalize();
+    temp.J=J.normalize();
+    temp.K=K.normalize();
     return temp;
   } 
->>>>>>> 4d55b93a0f283981cd2a661650d885000949b546
 }
