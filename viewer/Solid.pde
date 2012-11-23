@@ -41,6 +41,11 @@ class Solid{
    //need to implement 
     
   }
+
+String stringOrigin(){
+  pt temp = this.curves.get(0).pts.get(this.curves.get(0).pts.size()-1);
+  return "X: "+temp.x+" Y: "+temp.y+" Z: "+temp.z;
+}
   /*void setP(Curve p){
     p.deepCopy(p);
   }*/

@@ -28,7 +28,7 @@ Curve polygon,controlPoints,temp;
 RotateMatrix matrix;
 Solid s;
 int numRotations;
- Test test;
+Test test;
 // String SCC = "-"; // info on current corner
    
 // ****************************** VIEW PARAMETERS *******************************************************
@@ -50,6 +50,7 @@ pt sE = P(), sF = P(); vec sU=V(); //  view parameters (saved with 'j'
 pt O;
 boolean testBoolean;
 ArrayList<Curve> orientationTest;
+ArrayList<Solid> solids = new ArrayList<Solid>(4);
 int counter;
 
 // *******************************************************************************************************************    SETUP
@@ -68,18 +69,24 @@ void setup() {
   matrix=new RotateMatrix();
   temp=new Curve();
   drawRotate=false;
-   s=new Solid(polygon);
-   s.rotationalSweep(numRotations);
-   s.calculateI();
-   s.calculateJ();
-   s.calculateK();
-   O =s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
-   M.declareVectors();
-   M.makeRevolution(s);
-   testBoolean=false;
-   test= new Test();
-   orientationTest= test.testToLocalCurve();
-   counter=0;
+  s=new Solid(polygon);
+  s.rotationalSweep(numRotations);
+  s.calculateI();
+  s.calculateJ();
+  s.calculateK();
+  O =s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
+  M.declareVectors();
+  M.makeRevolution(s);
+  testBoolean=false;
+  test= new Test();
+  orientationTest= test.testToLocalCurve();
+  counter=0;
+  //Adding functionality for four shapes
+  for(int index=0; index<4; index++){
+    solids.add(index,new Solid(polygon));
+  }
+
+
    
   // ***************** Set view  
 }
@@ -92,25 +99,33 @@ void draw() {
     lights();
     fill(black); writeHelp();
     return;
-    } 
-   if(!testBoolean){
-     polygon.briansDraw();
-     controlPoints.drawPoints(); 
-   }
+  } 
+  if(!testBoolean){
+    polygon.briansDraw();
+    //controlPoints.drawPoints(); 
+  }
   // -------------------------------------------------------- 3D display : set up view ----------------------------------
   camera(E.x, E.y, E.z, F.x, F.y, F.z, U.x, U.y, U.z); // defines the view : eye, ctr, up
   vec Li=U(A(V(E,F),0.1*d(E,F),J));   // vec Li=U(A(V(E,F),-d(E,F),J)); 
   directionalLight(255,255,255,Li.x,Li.y,Li.z); // direction of light: behind and above the viewer
   specular(255,255,0); shininess(5);
   if(testBoolean){
-    
+    println("Test boolean tripped, drawing orientation test stuff");
     for(int i=0;  i<orientationTest.size();i++){
       orientationTest.get(i).briansDraw(); 
-       
     }
   }
   else{
+    println("Drawing S at: "+s.stringOrigin());
     s.draw();
+    /*
+    for(int i=0; i<solids.size(); i++){
+      pushMatrix();
+      translate(20*i,20*i,20*i);
+      solids.get(i).draw();
+      popMatrix();
+    }
+    */
     stroke(black);
   //show(polygon.pts.get(polygon.pts.size()-1),s.I);
   //show(polygon.pts.get(polygon.pts.size()-1),s.J);
@@ -147,8 +162,11 @@ void draw() {
      }
  
   // -------------------------------------------------------- graphic picking on surface and view control ----------------------------------   
- if (keyPressed&&key==' ') T.set(Pick()); // sets point T on the surface where the mouse points. The camera will turn toward's it when the ';' key is released
-  SetFrame(Q,I,J,K);  // showFrame(Q,I,J,K,30);  // sets frame from picked points and screen axes
+ if (keyPressed&&key==';'){
+  T.set(Pick()); // sets point T on the surface where the mouse points. The camera will turn toward's it when the ';' key is released
+  SetFrame(Q,I,J,K);
+  showFrame(Q,I,J,K,30);  // sets frame from picked points and screen axes
+}
   // rotate view 
  /* if(!keyPressed&&mousePressed) {E=R(E,  PI*float(mouseX-pmouseX)/width,I,K,F); E=R(E,-PI*float(mouseY-pmouseY)/width,J,K,F); } // rotate E around F 
   if(keyPressed&&key=='D'&&mousePressed) {E=P(E,-float(mouseY-pmouseY),K); }  //   Moves E forward/backward
@@ -234,7 +252,7 @@ void mouseReleased() {
     }
   
 void keyReleased() {
-   if(key==' ') F=P(T);                           //   if(key=='c') M0.moveTo(C.Pof(10));
+   if(key=='-') F=P(T);                           //   if(key=='c') M0.moveTo(C.Pof(10));
    U.set(M(J)); // reset camera up vector
    } 
 
@@ -341,15 +359,15 @@ void keyPressed() {
   if(key=='/') {} 
   if(key==' ') {
     //s=s.rotationalSweep(polygon,0,0,PI,matrix);
- 
-  test.runTests();
-  testBoolean=!testBoolean;
+    println("Spacebar Pressed");
+    test.runTests();
+    testBoolean=!testBoolean;
   } // pick focus point (will be centered) (draw & keyReleased)
 
   if(key=='0') {w=0;}
 //  for(int i=0; i<10; i++) if (key==char(i+48)) vis[i]=!vis[i];
   
-  } //------------------------------------------------------------------------ end keyPressed
+} //------------------------------------------------------------------------ end keyPressed
 
 float [] Volume = new float [3];
 float [] Area = new float [3];
@@ -360,7 +378,7 @@ Boolean prev=false;
 void showGrid(float s) {
   for (float x=0; x<width; x+=s*20) line(x,0,x,height);
   for (float y=0; y<height; y+=s*20) line(0,y,width,y);
-  }
+}
   
   // Snapping PICTURES of the screen
 PImage myFace; // picture of author's face, read from file pic.jpg in data folder
