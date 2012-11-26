@@ -3,10 +3,20 @@ class Solid{
   float d;//orientation of solid with respect to x axis
   ArrayList <Curve> curves;
   vec I,J,K;
+  pt origin;
   Solid(Curve p){//Curve p, int k, float d, float angle){
      curves=new ArrayList<Curve>();
      curves.add(p);
-   
+     this.I=new vec(1,0,0);
+     this.J=new vec(0,1,0);
+     this.K=new vec(0,0,1);
+     //origin
+  }
+  Solid(){
+    curves=new ArrayList<Curve>();
+    //this.I=new vec(1,0,0);
+    //this.J=new vec(0,1,0);
+    //this.K=new vec(0,0,1);
   }
   void rotationalSweep(int k){
     //need to implement
@@ -24,107 +34,161 @@ class Solid{
     curves.add(temp);
     i++;
     }
-    
   }
+ void setOrigin(pt O){
+  this.origin=O; 
+ }
  String toString(){
    String ret="";
    for(int i=0;i<curves.size();i++){
-    ret=curves.get(i).toString()+"\n"; 
+    ret+=curves.get(i).toString()+"\n"; 
    }
+   ret+="I: "+this.I+"\n";
+   ret+="J: "+this.J+"\n";
+   ret+="K: "+this.K+"\n";
+   ret+="origin: "+this.origin+"\n";
+   ret+="k: "+this.k;
     return ret; 
     
   }
-  void createTriangleMesh(){
-   //need to implement 
-    
-  }
-  /*void setP(Curve p){
-    p.deepCopy(p);
-  }*/
- // void setOrientation(float d){
-   // this.d=d; 
- // }
- /* void setAngle(float angle){
-   this.angle=angle; 
-  }*/
-  //void setK(int k){
-   //this.k=k; 
- // }
   void draw(){
     for(int i=0;i<curves.size();i++){
       curves.get(i).drawPoints();
       curves.get(i).briansDraw();
     } 
   }
-  /*void generateQuadVertices(){
-    for(int i=0;i<curves.size();i++){
-      for(int j=0;j<curves.get(i).size();j++){
-          //if(curves.)
-      } 
-    }
-  }*/
   void calculateJ(){
-    
     J=R(this.I).normalize();
   }
+  void calcJ(){
+     J=R(this.I,90.0,this.I,this.I);
+  }
   void calculateI(){
-   I=curves.get(0).orientationVec().normalize(); 
+     this.I=curves.get(0).orientationVec().normalize(); 
   }
   void calculateK(){
-   K= N(J,I).normalize();
+     this.K= N(J,I).normalize();
   }
   void incrementIX(){
-    I.x++; 
+    this.I.x+=1.0;
+   // this.I.normalize(); 
   }
   void incrementIY(){
-   I.y++; 
+   this.I.y+=1.0; 
+   //this.I.normalize();
   }
   void decrementIX(){
-   I.x--; 
+   this.I.x-=1.0; 
+ //  this.I.normalize();
   }
   void decrementIY(){
-   I.y--;
+   this.I.y-=1.0;
+   //this.I.normalize();
   }
-  void orientTo(vec newOr){
-    //normalize our new orientation vector
-    newOr = newOr.normalize();
-    //determine if we're rotating about J or K
-    float jangle = (angle(newOr,this.J)-angle(this.I,this.J));
-    float kangle = (angle(newOr,this.K)-angle(this.I,this.K));
-    fourDPoint pt=new fourDPoint();
-    //rotating about J 
-    if( jangle != 0.0){
-      RotateMatrix orientRotate = new RotateMatrix();
-      orientRotate.computeOrientationRotate(jangle,this.J.normalize());
-      for(int i=0; i<curves.size(); i++){
-        for(int j=0; j<curves.get(i).pts.size(); j++){
-          pt.setPt(curves.get(i).pts.get(j));
-          pt temp = orientRotate.matrixMultiplication(pt).toPt();
-          curves.get(i).pts.set(j,temp);
-        }
-      }
-      //this.K = N(J,I).normalize();
-          
-    }
-    //rotating about K
-    else{
-      RotateMatrix orientRotate = new RotateMatrix();
-      print(kangle+"\n");
-      orientRotate.computeOrientationRotate(kangle,this.K.normalize());
-      print(orientRotate.toString()+"\n");
-      for(int i=0; i<curves.size(); i++){
-        for(int j=0; j<curves.get(i).pts.size(); j++){
-          pt.setPt(curves.get(i).pts.get(j));
-          pt temp = orientRotate.matrixMultiplication(pt).toPt();
-          curves.get(i).pts.set(j,temp);
-        }
-      }
-      //double check this to make sure we arent switching vector directions
-      //this.J = N(K,I).normalize();
-    }
-    this.I = newOr;
+  void incrementIZ(){
+    this.I.z+=1.0;
   }
+  void decrementIZ(){
+    this.I.z-=1.0;
+  }
+    void incrementKX(){
+    this.K.x+=1.0;
+   // this.I.normalize(); 
+  }
+  void incrementKY(){
+   this.K.y+=1.0; 
+   //this.I.normalize();
+  }
+  void decrementKX(){
+   this.K.x-=1.0; 
+ //  this.I.normalize();
+  }
+  void decrementKY(){
+   this.K.y-=1.0;
+   //this.I.normalize();
+  }
+     void incrementJZ(){
+    this.J.z+=1.0;
+   // this.I.normalize(); 
+  }
+  void incrementJY(){
+   this.J.y+=1.0; 
+   //this.I.normalize();
+  }
+  void decrementJZ(){
+   this.J.z-=1.0; 
+ //  this.I.normalize();
+  }
+  void decrementJY(){
+   this.J.y-=1.0;
+   //this.I.normalize();
+  }
+  Solid toLocalSolid(vec I, vec J, vec K, pt O){
+    Solid temp= new Solid();
+    for(int i=0; i<curves.size();i++){
+     temp.curves.add(this.curves.get(i).toLocalCurve(I,J,K,O));
+    }
+     temp.origin=this.origin;
+    return temp;
+  }
+ Solid toLocalSolid(){
+    Solid temp= new Solid();
+    for(int i=0; i<curves.size();i++){
+     temp.curves.add(this.curves.get(i).toLocalCurve(this.I,this.J,this.K,this.origin));
+    }
+    temp.origin=this.origin;
+    temp.k=this.k;
+    return temp;
+  }
+  Solid toGlobalSolid(vec I, vec J, vec K, pt O){
+    Solid temp= new Solid();
+    for(int i=0; i<curves.size();i++){
+     temp.curves.add(this.curves.get(i).toGlobalCurve(I,J,K,O));
+    }
+    temp.I= I.normalize();
+    temp.J= J.normalize();
+    temp.K= K.normalize();
+    temp.origin= this.origin;
+    temp.k=this.k;
+    return temp;
+  } 
+  void set(Solid t){
+   this.curves=t.curves;
+   this.origin=t.origin;
+   this.I=t.I;
+   this.J=t.J;
+   this.K=t.K; 
+   this.k=t.k;
+  }
+  void copyPts(Solid s){
+   this.curves.clear();
+    for(int i=0;i<s.curves.size();i++){
+     this.curves.add(s.curves.get(i));
+    } 
+  }
+  void readyToDraw(Curve c){ 
+    Curve tempy= new Curve();
+    tempy.deepCopy(c);
+    curves.clear();
+    curves.add(tempy);
+    pt tempOrigin = curves.get(0).pts.get(curves.get(0).pts.size()-1);
+    this.rotationalSweep(this.k);
+    vec dV= V(tempOrigin,this.origin);
+    this.translate(dV);
     
-    
-
+    Solid tempySolid=new Solid();
+    tempySolid.set(this);
+    tempySolid=tempySolid.toLocalSolid(new vec(1,0,0),new vec(0,1,0),new vec(0,0,1),this.origin);
+    tempySolid=tempySolid.toGlobalSolid(this.I,this.J,this.K,this.origin);
+    this.copyPts(tempySolid);
+  }
+  void translate(vec delta){
+    pt tempPt;
+    for(int i=0; i<curves.size();i++){
+      for(int j=0;j<curves.get(i).pts.size();j++){
+        tempPt=this.curves.get(i).pts.get(j);
+        curves.get(i).pts.set(j,P(tempPt,delta));
+      }
+    } 
+  }
 }
