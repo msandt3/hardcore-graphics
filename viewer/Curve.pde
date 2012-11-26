@@ -77,7 +77,7 @@ class Curve {
       pts.set(i,temp);
     }
   } // init the points to be on a circle
-  Curve empty(){ n=0; return this; };      // resets the vertex count to zero
+  Curve empty(){ n=0; pts.clear(); return this; };      // resets the vertex count to zero
   void pick(pt M) {
     p=0; 
     for (int i=1; i<n; i++){
@@ -86,6 +86,7 @@ class Curve {
     }
   }
   void dragPoint(vec V) {
+    println(p);
     pts.get(p).add(V);
   }
   void dragAll(vec V) {
@@ -495,5 +496,31 @@ String toString(){
   }
   vec calculateK(){
    return N(calculateJ(),calculateI()).normalize();
+  }
+
+  Curve makeConvex() {
+    ArrayList<pt> convexHull = new ArrayList<pt>();
+    pt pointOnHull = pts.get(0);
+    pt endPoint;
+    int i = 0;
+    do {
+      convexHull.add(pointOnHull);
+      endPoint = pts.get(0);
+      for (int j = 1; j < pts.size(); j++) {
+        if (endPoint == pointOnHull || isLeft(convexHull.get(i), endPoint, pts.get(j))) {
+          endPoint = pts.get(j);
+        }
+      }
+      i++;
+      pointOnHull = endPoint;
+    } while (endPoint != pts.get(0));
+
+    empty();
+    for (pt p : convexHull) {
+      pts.add(p);
+    }
+
+    println("done");
+    return this;
   }
 }  // end class Curve

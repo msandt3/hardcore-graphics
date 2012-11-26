@@ -325,8 +325,17 @@ void keyPressed() {
    
   if(key=='A')// {C.savePts();}
   if(key=='B') {}
-  if(key=='C') //{C.loadPts();} // save curve
-  if(key=='D') {} //move in depth without rotation (draw)
+  if(key=='C') {
+   if(edit)
+     sCurve = sCurve.makeConvex();
+   else if(edit1)
+     s1Curve.makeConvex();
+    else if(edit2)
+     s2Curve.makeConvex();
+    else if(edit3)
+     s3Curve.makeConvex();
+  }
+  if(key=='D') {} 
   if(key=='E') {M.smoothen(); M.normals();}
   if(key=='F') {}
   if(key=='G') {}
