@@ -26,7 +26,7 @@ class Mesh {
  float r=2;                                // detail size: radius of spheres for displaying vertices and of gaps between triangles when showing edges
 
  // rendering modes
- Boolean flatShading=false, showEdges=false, showCurvature=false;  // showEdges shoes edges as gaps. Smooth shading works only when !showEdge
+ Boolean flatShading=true, showEdges=false, showCurvature=false;  // showEdges shoes edges as gaps. Smooth shading works only when !showEdge
 
 
  // primary tables
@@ -178,6 +178,8 @@ vec[] Nt = new vec [maxnt];                // triangles normals
       }
     }
   }
+
+  normals();
  }
 
  void makeGrid (int w) { // make a 2D grid of w x w vertices

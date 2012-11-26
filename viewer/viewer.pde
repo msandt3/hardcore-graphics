@@ -111,11 +111,10 @@ void draw() {
             controlPoints.insert(new pt(pmouseX,pmouseY,0));
             polygon.deepCopy(controlPoints); 
          }
-
      }
      
      // -------------------------------------------------------- show mesh ----------------------------------   
-   if(showMesh) { fill(yellow); if(M.showEdges) stroke(white);  else noStroke(); M.showFront();} 
+   if(showMesh) { fill(yellow); noStroke(); M.showFront();} 
    
     // -------------------------- pick mesh corner ----------------------------------   
    if(pressed) if (keyPressed&&(key=='.')) M.pickc(Pick());
@@ -225,7 +224,7 @@ void keyPressed() {
   } 
   if(key=='e') {}
   if(key=='f') {}
-  if(key=='g') {} // change global twist w (mouseDrag)
+  if(key=='g') { M.flatShading = !M.flatShading; }
   if(key=='h') {} // hide picked vertex (mousePressed)
   if(key=='i') {}
   if(key=='j') {}
