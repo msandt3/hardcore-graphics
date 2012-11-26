@@ -326,14 +326,19 @@ void keyPressed() {
   if(key=='A')// {C.savePts();}
   if(key=='B') {}
   if(key=='C') {
-   if(edit)
+   if(edit) {
      sCurve = sCurve.makeConvex();
-   else if(edit1)
-     s1Curve.makeConvex();
-    else if(edit2)
-     s2Curve.makeConvex();
-    else if(edit3)
-     s3Curve.makeConvex();
+     s.readyToDraw(sCurve);
+   } else if(edit1) {
+      s1Curve.makeConvex();
+      s1.readyToDraw(s1Curve);
+   } else if(edit2) {
+      s2Curve.makeConvex();
+      s2.readyToDraw(s2Curve);
+   } else if(edit3) {
+      s3Curve.makeConvex();
+      s3.readyToDraw(s3Curve);
+   }
   }
   if(key=='D') {} 
   if(key=='E') {M.smoothen(); M.normals();}
