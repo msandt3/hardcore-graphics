@@ -1,0 +1,59 @@
+class MeshMap {
+	Mesh A;
+	Mesh B;
+	Map<Integer, List<Integer>> V2F;
+	Map<Integer, List<Integer>> F2V;
+	Map<Integer, List<Integer>> E2E;
+
+	MeshMap(Mesh A, Mesh B) {
+		this.A = A;
+		this.B = B;
+		V2F = new HashMap<Integer, List<Integer>>();
+		F2V = new HashMap<Integer, List<Integer>>();
+		E2E = new HashMap<Integer, List<Integer>>();
+		faceToVertex();
+		vertexToFace();
+	}
+
+	clear() {
+		A = null;
+		B = null;
+		V2F.clear();
+		F2V.clear();
+		E2E.clear();
+	}
+
+	MeshMap faceToVertex() {
+		for (int i = 0; i < A.nt; i++) {
+			float max = 0;
+			int maxKey = 0;
+			for (int j = 0; j < B.nv; j++) {
+				float dot = d(A.Nt[i], B.Nv[j]);
+				if (dot > max) {
+					max = dot;
+					maxKey = j;
+				}
+			}
+			F2V.put(i, new ArrayList<Integer>(maxKey));
+		}
+	}
+
+	MeshMap vertexToFace() {
+		for (int i = 0; i < A.nt; i++) {
+			float max = 0;
+			int maxKey = 0;
+			for (int j = 0; j < B.nv; j++) {
+				float dot = d(A.Nv[i], B.Nt[j]);
+				if (dot > max) {
+					max = dot;
+					maxKey = j;
+				}
+			}
+			V2F.put(i, new ArrayList<Integer>(maxKey));
+		}
+	}
+
+	MeshMap edgeToEdge() {
+
+	}
+}
