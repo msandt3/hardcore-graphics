@@ -1,7 +1,4 @@
-//*********************************************************************
-//**                            3D template                          **
-//**                 Jarek Rossignac, Oct  2012                      **   
-//*********************************************************************
+
 import processing.opengl.*;                // load OpenGL libraries and utilities
 import javax.media.opengl.*; 
 import javax.media.opengl.glu.*; 
@@ -23,12 +20,14 @@ Boolean
   filterFrenetNormal=true,
   showTwistFreeNormal=false, 
   showHelpText=false;
-  Boolean drawRotate;
-Curve polygon,controlPoints,temp;
+  Boolean drawRotate,edit,edit1,edit2,edit3;
+Curve polygon,controlPoints,temp, tempCurve;
+Curve editCurve;
+Solid editSolid;
 RotateMatrix matrix;
-Solid s;
+Solid s,s1,s2,s3;
 int numRotations;
-
+ Test test;
 // String SCC = "-"; // info on current corner
    
 // ****************************** VIEW PARAMETERS *******************************************************
@@ -47,6 +46,12 @@ float sampleDistance=1;
 int nsteps=250; // number of smaples along spine
 float sd=10; // sample distance for spine
 pt sE = P(), sF = P(); vec sU=V(); //  view parameters (saved with 'j'
+pt O;
+boolean mainView;
+ArrayList<Curve> orientationTest;
+int counter;
+Solid testSolid;
+Curve sCurve, s1Curve,s2Curve,s3Curve;
 
 
 // *******************************************************************************************************************    SETUP
@@ -54,28 +59,55 @@ void setup() {
   size(800, 800, OPENGL);  
   //size(800,800,800);
   setColors(); sphereDetail(6); 
-   numRotations=6;
+  numRotations=6;
   PFont font = loadFont("GillSans-24.vlw"); textFont(font, 20);  // font for writing labels on //  PFont font = loadFont("Courier-14.vlw"); textFont(font, 12); 
   // ***************** OpenGL and View setup
   glu= ((PGraphicsOpenGL) g).glu;  PGraphicsOpenGL pgl = (PGraphicsOpenGL) g;  gl = pgl.beginGL();  pgl.endGL();
   initView(); // declares the local frames for 3D GUI
-  polygon=new Curve();
-  controlPoints= new Curve();
-  computePolygon();
+  sCurve=new Curve();
+  sCurve.loadPts();
+  println("SCURVE: "+sCurve);
   matrix=new RotateMatrix();
   temp=new Curve();
   drawRotate=false;
-   s=new Solid(polygon);
-   s.rotationalSweep(numRotations);
-   s.calculateI();
-   s.calculateJ();
-   s.calculateK();
+  s=new Solid(sCurve);
+  s.k=5;
+  s.setOrigin(new pt(-500,200,0));
+  s.readyToDraw(sCurve);
+  println("in setup>s.origin: "+s.origin);
+  O =s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
+  //println("SCURVE1: "+sCurve);
+  // M.declareVectors();
+  // M.makeRevolution(s);
+   mainView=true;
+   //Create solids
+   s1Curve=new Curve();
+   s1Curve.loadPts("data/P1.pts");
+   s1=new Solid(s1Curve);
+   s1.setOrigin(new pt(-250,-400,0));
+   s1.k=4;
+   s1.readyToDraw(s1Curve);
+   
+ 
+   s2Curve=new Curve();
+   s2Curve.loadPts("data/P2.pts");
+   s2=new Solid(s2Curve);
+   s2.setOrigin(new pt(100,-400,0));
+   s2.k=6;
+   s2.readyToDraw(s2Curve);
 
-  M.declareVectors();
-   M.makeRevolution(s);
+   s3Curve=new Curve();
+   s3Curve.loadPts("data/P3.pts");
+   s3=new Solid(s3Curve);
+   s3.setOrigin(new pt(400,200,0));
+   s3.k=8;
+   s3.readyToDraw(s3Curve);
 
-
-
+   //initSolids();
+   edit=false;
+   edit1=false;
+   edit2=false;
+   edit3=false;
   // ***************** Set view  
 }
 // ******************************************************************************************************************* DRAW      
@@ -88,41 +120,58 @@ void draw() {
     fill(black); writeHelp();
     return;
     } 
-   polygon.briansDraw();
-   controlPoints.drawPoints(); 
-
+   if(edit){
+    sCurve.briansDraw();
+    sCurve.drawPoints();
+   }
+   else if(edit1){
+    s1Curve.briansDraw();
+    s1Curve.drawPoints(); 
+   }
+   else if(edit2){
+    s2Curve.briansDraw();
+    s2Curve.drawPoints(); 
+   }
+   else if(edit3){
+    s3Curve.briansDraw();
+    s3Curve.drawPoints(); 
+   }
   // -------------------------------------------------------- 3D display : set up view ----------------------------------
   camera(E.x, E.y, E.z, F.x, F.y, F.z, U.x, U.y, U.z); // defines the view : eye, ctr, up
   vec Li=U(A(V(E,F),0.1*d(E,F),J));   // vec Li=U(A(V(E,F),-d(E,F),J)); 
   directionalLight(255,255,255,Li.x,Li.y,Li.z); // direction of light: behind and above the viewer
   specular(255,255,0); shininess(5);
-  s.draw();
-  stroke(black);
-  show(polygon.pts.get(polygon.pts.size()-1),s.I);
-  show(polygon.pts.get(polygon.pts.size()-1),s.J);
-  show(polygon.pts.get(polygon.pts.size()-1),s.K);
   
-  // -------------------------- display and edit control points of the spines and box ----------------------------------   
+  s.draw();
+  s1.draw();
+  s2.draw();
+  s3.draw(); 
+// -------------------------- display and edit control points of the spines and box ----------------------------------   
     if(pressed) {
          if (keyPressed&&(key=='a')) {//Picks a point on the polygon
-           controlPoints.pick(new pt(pmouseX,pmouseY,0)); 
+           if(edit)
+             sCurve.pickPoint(new pt(pmouseX,pmouseY,0));
+           else if(edit1)
+             s1Curve.pickPoint(new pt(pmouseX,pmouseY,0));
+            else if(edit2)
+             s2Curve.pickPoint(new pt(pmouseX,pmouseY,0));
+            else if(edit3)
+             s3Curve.pickPoint(new pt(pmouseX,pmouseY,0));
        }
          if(keyPressed&&(key=='i')){
-            controlPoints.insert(new pt(pmouseX,pmouseY,0));
-            polygon.deepCopy(controlPoints); 
          }
 
      }
      
      // -------------------------------------------------------- show mesh ----------------------------------   
-   if(showMesh) { fill(yellow); if(M.showEdges) stroke(white);  else noStroke(); M.showFront();} 
+   //if(showMesh) { fill(yellow); if(M.showEdges) stroke(white);  else noStroke(); M.showFront();} 
    
     // -------------------------- pick mesh corner ----------------------------------   
    if(pressed) if (keyPressed&&(key=='.')) M.pickc(Pick());
  
  
      // -------------------------------------------------------- show mesh corner ----------------------------------   
-   if(showMesh) { fill(red); noStroke(); M.showc();} 
+//   if(showMesh) { fill(red); noStroke(); M.showc();} 
  
     // -------------------------------------------------------- edit mesh  ----------------------------------   
   if(pressed) {
@@ -131,12 +180,12 @@ void draw() {
      }
  
   // -------------------------------------------------------- graphic picking on surface and view control ----------------------------------   
- if (keyPressed&&key==' ') T.set(Pick()); // sets point T on the surface where the mouse points. The camera will turn toward's it when the ';' key is released
-  SetFrame(Q,I,J,K);  // showFrame(Q,I,J,K,30);  // sets frame from picked points and screen axes
+ //if (keyPressed&&key==' ') T.set(Pick()); // sets point T on the surface where the mouse points. The camera will turn toward's it when the ';' key is released
+  //SetFrame(Q,I,J,K);  // showFrame(Q,I,J,K,30);  // sets frame from picked points and screen axes
   // rotate view 
-  if(!keyPressed&&mousePressed) {E=R(E,  PI*float(mouseX-pmouseX)/width,I,K,F); E=R(E,-PI*float(mouseY-pmouseY)/width,J,K,F); } // rotate E around F 
+ /* if(!keyPressed&&mousePressed) {E=R(E,  PI*float(mouseX-pmouseX)/width,I,K,F); E=R(E,-PI*float(mouseY-pmouseY)/width,J,K,F); } // rotate E around F 
   if(keyPressed&&key=='D'&&mousePressed) {E=P(E,-float(mouseY-pmouseY),K); }  //   Moves E forward/backward
-  if(keyPressed&&key=='d'&&mousePressed) {E=P(E,-float(mouseY-pmouseY),K);U=R(U, -PI*float(mouseX-pmouseX)/width,I,J); }//   Moves E forward/backward and rotatees around (F,Y)
+  if(keyPressed&&key=='d'&&mousePressed) {E=P(E,-float(mouseY-pmouseY),K);U=R(U, -PI*float(mouseX-pmouseX)/width,I,J); }//   Moves E forward/backward and rotatees around (F,Y)*/
   
   // -------------------------------------------------------- Disable z-buffer to display occluded silhouettes and other things ---------------------------------- 
   hint(DISABLE_DEPTH_TEST);  // show on top
@@ -150,39 +199,65 @@ void draw() {
   // -------------------------------------------------------- SNAP PICTURE ---------------------------------- 
    if(snapping) snapPicture(); // does not work for a large screen
     pressed=false;
-
- } // end draw
+  
+} // end draw
  
  
  // ****************************************************************************************************************************** INTERRUPTS
 Boolean pressed=false;
-
 void mousePressed() {pressed=true; }
-  
 void mouseDragged() {
    if(keyPressed&&key=='a'){
-     if(controlPoints.p==0 || controlPoints.p==controlPoints.pts.size()-1){
-             controlPoints.dragPoint(V(0,new vec(0.0,0.0,0.0),-.5*(mouseY-pmouseY),J));
+     if(edit&&sCurve.p!=-1){
+        if(sCurve.p==0 || sCurve.p==sCurve.pts.size()-1){
+          sCurve.dragPoint(V(0,new vec(0,0,0),.5*(mouseY-pmouseY),J));
+        }
+        else{
+         sCurve.dragPoint(V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),J));
+       }
+       s.readyToDraw(sCurve);
      }
-     else{
-      controlPoints.dragPoint(V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J));
+     if(edit1&&s1Curve.p!=-1){
+        if(s1Curve.p==0 || s1Curve.p==s1Curve.pts.size()-1){
+          s1Curve.dragPoint(V(0,new vec(0,0,0),.5*(mouseY-pmouseY),J));
+        }
+        else{
+         s1Curve.dragPoint(V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),J));
+       }
+       s1.readyToDraw(s1Curve);
      }
-    polygon.deepCopy(controlPoints);
-    s.curves.clear();
-    s.curves.add(polygon);
-    s.rotationalSweep(numRotations);
-    M.resetCounters();
-    M.makeRevolution(s);
-    
-   } 
+     if(edit2&&s2Curve.p!=-1){
+        if(s2Curve.p==0 || s2Curve.p==s2Curve.pts.size()-1){
+          s2Curve.dragPoint(V(0,new vec(0,0,0),.5*(mouseY-pmouseY),J));
+        }
+        else{
+         s2Curve.dragPoint(V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),J));
+       }
+       s2.readyToDraw(s2Curve);
+     }
+     if(edit3&&s3Curve.p!=-1){
+        if(s3Curve.p==0 || s3Curve.p==s3Curve.pts.size()-1){
+          s3Curve.dragPoint(V(0,new vec(0,0,0),.5*(mouseY-pmouseY),J));
+        }
+        else{
+         s3Curve.dragPoint(V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),J));
+       }
+       s3.readyToDraw(s3Curve);
+     }
+    //M.resetCounters();
+    //M.makeRevolution(s);
+  } 
   if(keyPressed&&key=='s') {
      
      }
   if(keyPressed&&key=='o'){
-     //Solid localSolid=s.toLocalSolid(s.I,s.J,s.K);
+    
+    Solid localSolid=s.toLocalSolid(s.I,s.J,s.K,O);
+     
+     
      if(mouseX-pmouseX<0){
        s.decrementIX();
-     }
+    }
      else if(mouseX-pmouseX>0){
        s.incrementIX(); 
      }
@@ -193,8 +268,10 @@ void mouseDragged() {
       s.decrementIY(); 
      }
      s.calculateJ();
-     s.calculateK();
+     s.calculateK();     
+     s = localSolid.toGlobalSolid(s.I,s.J,s.K,O);
   }  
+
      // move selected vertex of curve C in screen plane
   if(keyPressed&&key=='b') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
   if(keyPressed&&key=='v') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J) ); } // move selected vertex of curve Cb in XZ
@@ -205,12 +282,12 @@ void mouseDragged() {
   }
 
 void mouseReleased() {
-     U.set(M(J)); // reset camera up vector
+   //  U.set(M(J)); // reset camera up vector
     }
   
 void keyReleased() {
-   if(key==' ') F=P(T);                           //   if(key=='c') M0.moveTo(C.Pof(10));
-   U.set(M(J)); // reset camera up vector
+   //if(key==' ') F=P(T);                           //   if(key=='c') M0.moveTo(C.Pof(10));
+  // U.set(M(J)); // reset camera up vector
    } 
 
  
@@ -299,29 +376,76 @@ void keyPressed() {
   if(key=='>') {if (shrunk==0) shrunk=1; else shrunk=0;}
   if(key=='?') {showHelpText=!showHelpText;}
     if(key=='.') {
-    numRotations++;
-    s.curves.clear();
-    s.curves.add(polygon);
-    s.rotationalSweep(numRotations);
+      if(edit){
+        s.k++;
+        s.readyToDraw(sCurve);
+      }
+      else if(edit1){
+        s1.k++;
+        s1.readyToDraw(s1Curve);
+      }
+      else if(edit2){
+        s2.k++;
+        s2.readyToDraw(s2Curve);
+      }
+      else if(edit3){
+        s3.k++;
+        s3.readyToDraw(s3Curve);
+      }
   } // pick corner
   if(key==',') {
-    if(numRotations>2){
-    numRotations--;
-    s.curves.clear();
-    s.curves.add(polygon);
-    s.rotationalSweep(numRotations);
-    }
+    if(edit&&s.k>2){
+        s.k--;
+        s.readyToDraw(sCurve);
+      }
+      else if(edit1&&s1.k>2){
+        s1.k--;
+        s1.readyToDraw(s1Curve);
+      }
+      else if(edit2&&s2.k>2){
+        s2.k--;
+        s2.readyToDraw(s2Curve);
+      }
+      else if(edit3&&s3.k>2){
+        s3.k--;
+        s3.readyToDraw(s3Curve);
+      }
   }
   if(key=='^') {} 
   if(key=='/') {} 
   if(key==' ') {
-    //s=s.rotationalSweep(polygon,0,0,PI,matrix);
-  Test test= new Test();
-  test.runTests();
-  
+    edit1=false;
+    edit2=false;
+    edit3=false;
+    edit=false;
   } // pick focus point (will be centered) (draw & keyReleased)
-
-  if(key=='0') {w=0;}
+  if(key=='1'){
+    //set view to curve one editing view
+   edit=true;
+   edit1=false;
+   edit2=false;
+   edit3=false;
+  }
+ if(key=='2'){
+  edit1=true;
+  edit2=false;
+  edit3=false;
+  edit=false;
+  }
+  if(key=='3'){
+   edit2=true;
+   edit3=false;
+   edit=false;
+   edit1=false; 
+  }
+  if(key=='4'){
+   edit3=true;
+   edit=false;
+   edit2=false;
+   edit1=false; 
+    
+  }
+ if(key=='0') {w=0;}
 //  for(int i=0; i<10; i++) if (key==char(i+48)) vis[i]=!vis[i];
   
   } //------------------------------------------------------------------------ end keyPressed
@@ -342,10 +466,32 @@ PImage myFace; // picture of author's face, read from file pic.jpg in data folde
 int pictureCounter=0;
 Boolean snapping=false; // used to hide some text whil emaking a picture
 void snapPicture() {saveFrame("PICTURES/P"+nf(pictureCounter++,3)+".jpg"); snapping=false;}
-void computePolygon(){//used for loading and subdividing curve
-  controlPoints.loadPts();
-  polygon.deepCopy(controlPoints);
-}//End of computePolygon
+void initSolids(){
+  //  s.setOrigin(new pt(-500,0,0));
+   // pt tempO= s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
+   // Solid temp = s.toLocalSolid(s.I,s.J,s.K,tempO);
+   // temp = temp.toGlobalSolid(s.I, s.J, s.K, s.origin);
+   // s=temp;
+    
+    /*s1.setOrigin(new pt(-250,200,0));
+    pt tempO1= s1.curves.get(0).pts.get(s1.curves.get(0).pts.size()-1);
+    Solid temp1 = s1.toLocalSolid(s1.I,s1.J,s1.K,tempO1);
+    temp1 = temp1.toGlobalSolid(s1.I, s1.J, s1.K, s1.origin);
+    s1=temp1;
+    
+    s2.setOrigin(new pt(200,50,0));
+    pt temp02 = s2.curves.get(0).pts.get(s2.curves.get(0).pts.size()-1);
+    Solid temp2 = s2.toLocalSolid(s2.I,s2.J,s2.K,temp02);
+    temp2 = temp2.toGlobalSolid(s2.I,s2.J,s2.K,s2.origin);
+    s2 = temp2;
+    
+    s3.setOrigin(new pt(400,0,-100));
+    pt temp03 = s3.curves.get(0).pts.get(s3.curves.get(0).pts.size()-1);
+    Solid temp3 = s3.toLocalSolid(s3.I,s3.J,s3.K,temp03);
+    temp3 = temp3.toGlobalSolid(s3.I,s3.J,s3.K,s3.origin);
+    s3 = temp3;*/
+}
+
 
  
 

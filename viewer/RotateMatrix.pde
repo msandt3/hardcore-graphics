@@ -42,6 +42,9 @@ class RotateMatrix{
    //fourth row
    matrix[3][3] = 1;
  }
+// void computeTranslationMatrix(){
+    
+// }
  void changeBasisMatrix(){
   //
  }

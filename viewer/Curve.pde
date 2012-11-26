@@ -3,7 +3,7 @@ class Curve {
   int n=0;                            // current number of control points
   pt [] P = new pt[5000];            //  array of points
   ArrayList<pt> pts = new ArrayList<pt>(5000);
- 
+   
   vec [] Nx = new vec[5000];          // twist free normal vectors 
   vec [] Ny = new vec[5000];          // twist free binormal vectors
   vec [] Nfx = new vec[5000];          // Frenet normal vectors
@@ -219,6 +219,16 @@ class Curve {
     }
     return P(R);
   }
+  void pickPoint(pt M){
+    //pt R=pts.get(0); 
+    p=-1;
+    for (int i=0; i<pts.size(); i++){ 
+      if (d(M,pts.get(i))<10) {
+        p=i;
+        return;
+      }
+    }
+  }
   float distanceTo(pt M) {
     float md=d(M,pts.get(0));
     for (int i=1; i<n; i++)
@@ -234,7 +244,7 @@ class Curve {
   void loadPts() {loadPts("data/P.pts");
       
 }
-  
+   
   void loadPts(String fn) { String [] ss = loadStrings(fn);
     String subpts;
     int s=0; int comma1, comma2; n = int(ss[s]);
@@ -463,4 +473,27 @@ String toString(){
     }
     return ret;
 }
+  Curve toLocalCurve(vec I, vec J, vec K, pt O){
+    Curve temp= new Curve();
+     for(int i=0;i<pts.size();i++){
+       temp.pts.add(this.pts.get(i).toLocalPt(I,J,K,O)); 
+     }
+     return temp;
+  }
+  Curve toGlobalCurve(vec I,vec J,vec K, pt O){
+    Curve temp = new Curve();
+    for(int i=0;i<pts.size();i++){
+      temp.pts.add(this.pts.get(i).toGlobalPt(I,J,K,O));
+    }
+    return temp;
+  }
+  vec calculateJ(){
+    return R(this.calculateI()).normalize();
+  }
+  vec calculateI(){
+   return orientationVec().normalize(); 
+  }
+  vec calculateK(){
+   return N(calculateJ(),calculateI()).normalize();
+  }
 }  // end class Curve
