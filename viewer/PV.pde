@@ -82,6 +82,15 @@ class pt { float x=0,y=0,z=0;
     pt P= P(O,A(A(V(this.x,I),V(this.y,J)),V(this.z,K))); 
     return P;
   }
+  void drawPt(){
+      pushMatrix();
+      noStroke();
+      fill(red);
+      translate(this.x,this.y,this.z); 
+      sphereDetail(15,15);
+      sphere(10);
+      popMatrix();
+   } 
 }
 //  void projectOnCylinder(pt A, pt B, float r) {pt H = S(A,d(V(A,B),V(A,this))/d(V(A,B),V(A,B)),B); this.setTo(T(H,r,this));}   
 // =====  point functions

@@ -57,7 +57,7 @@ ArrayList<Curve> orientationTest;
 int counter;
 Solid testSolid;
 Curve sCurve, s1Curve,s2Curve,s3Curve;
-
+pt e1A,e1B,e2A,e2B,pe1A,pe1B, pe2A, pe2B;
 
 // *******************************************************************************************************************    SETUP
 void setup() {
@@ -71,7 +71,7 @@ void setup() {
   initView(); // declares the local frames for 3D GUI
   sCurve=new Curve();
   sCurve.loadPts();
- 
+   
   matrix=new RotateMatrix();
   temp=new Curve();
   drawRotate=false;
@@ -114,8 +114,22 @@ void setup() {
   M3.declareVectors();
   M3.makeRevolution(s3);
 
-   M.map(0, M1);
-
+  M.map(0, M1);
+  
+  e1A=new pt(-300,400,100);
+  e1B=new pt(-400,-100,100);
+  e2A=new pt(200,100,200);
+  e2B=new pt(100,400,200);
+  pe1A=new pt();
+  pe1B=new pt();
+  pe2A=new pt();
+  pe2B=new pt();
+  
+  pe1A.set(e1A);
+  pe1B.set(e1B);
+  pe2A.set(e1A);
+  pe2B.set(e1B);
+  
    //initSolids();
    edit=false;
    edit1=false;
@@ -155,13 +169,26 @@ void draw() {
   directionalLight(255,255,255,Li.x,Li.y,Li.z); // direction of light: behind and above the viewer
   specular(255,255,0); shininess(5);
   
-  s.draw();
-  s1.draw();
-  s2.draw();
-  s3.draw(); 
+ // s.draw();
+  //s1.draw();
+  //s2.draw();
+ // s3.draw(); 
 
-  M.drawMorph(time);
-
+ // M.drawMorph(time);
+ 
+  stroke(black);
+  line(e1A.x,e1A.y,e1A.z,e1B.x,e1B.y,e1B.z);
+  line(e2A.x,e2A.y,e2A.z,e2B.x,e2B.y,e2B.z);
+  noStroke();
+  fill(red);
+  beginShape();
+  vertex(pe1A);
+  vertex(pe1B);
+  vertex(pe2B);     
+  vertex(pe2A);
+  endShape();
+  calcEdge(time);
+  
   if(time>=1.0)
     deltaT=-.01;
   else if(time<=0)
@@ -186,7 +213,7 @@ void draw() {
      }
      
      // -------------------------------------------------------- show mesh ----------------------------------   
-   if(showMesh) { fill(yellow); stroke(white); M.showFront();} 
+   if(showMesh) {}// fill(yellow); stroke(white); M.showFront();} 
    
     // -------------------------- pick mesh corner ----------------------------------   
    if(pressed) if (keyPressed&&(key=='.')) M.pickc(Pick());
@@ -569,6 +596,13 @@ Boolean snapping=false; // used to hide some text whil emaking a picture
 void snapPicture() {saveFrame("PICTURES/P"+nf(pictureCounter++,3)+".jpg"); snapping=false;}
 void initSolids(){
 
+}
+void calcEdge(float t){
+  pe1A.set(P(e1A,t,e2A));
+  pe2A.set(P(e1A,t,e2B));
+  pe1B.set(P(e1B,t,e2A));
+  pe2B.set(P(e1B,t,e2B));
+  
 }
 
 

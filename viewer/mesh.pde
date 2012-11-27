@@ -78,6 +78,8 @@ void map(int id, Mesh map) {
 void drawMorph(float t) {
   for (int i = 0; i < nt; i++) { // go through triangles first
     List<pt> vertices = mappings[0].F2V.get(i);
+    fill(red);
+    noStroke();
     for (pt morphTo : vertices) {
       beginShape();
         vertex(P(G[V[i + 0]],t,morphTo));

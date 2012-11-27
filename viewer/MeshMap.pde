@@ -56,7 +56,7 @@ class MeshMap {
 	}
 
 	void edgeToEdge() {
-
+            //  for(int i=0;)
 	}
 
 	pt getBVertex(int v) {
