@@ -14,7 +14,8 @@ class Mesh {
  int maxnt = maxnv*2;                       // max number of triangles
  int nv = 0;                              // current  number of vertices
  int nt = 0;                   // current number of triangles
- int nc = 0;                                // current number of corners (3 per triangle)
+ int nc = 0;                                //current number of corners (3 per triangle)
+ int nedges = 0;
  int nvr=0, ntr=0, ncr=0; // remember state to restore
  int cc=0, pc=0, sc=0;                      // current, previous, saved corners
  float vol=0, surf=0, edgeLength=0;                      // vol and surface and average edge length
@@ -33,6 +34,7 @@ class Mesh {
  pt[] G = new pt [maxnv];                   // geometry table (vertices)
  int[] V = new int [3*maxnt];               // V table (triangle/vertex indices)
  int[] O = new int [3*maxnt];               // O table (opposite corner indices)
+ ArrayList<Edge> edges = new ArrayList<Edge>(); //list of edges for edge to edge mapping of meshes
 
  // Normal vectors
 vec[] Nv = new vec [maxnv];                 // vertex normals or laplace vectors
@@ -69,7 +71,11 @@ vec[] Nt = new vec [maxnt];                // triangles normals
  int prevc = 0;                             // previously selected corner
  int rings=2;                           // number of rings for colorcoding
  MeshMap[] mappings = new MeshMap[3];
-
+// ===================================== Edge List ===========================
+void addEdge(pt A, pt B){
+  Edge temp = new Edge(A,B);
+  this.edges.add(temp);
+}
 //  ==================================== make mapping ===============================
 void map(int id, Mesh map) {
   mappings[id] = new MeshMap(this, map);
@@ -190,6 +196,7 @@ void drawMorph(float t) {
     for (int j = 0; j < n - 1; j++) {
       if (j == 0) {
         addTriangle(currentFace[j + 1], firstV, nextFace[j + 1]);
+
       } else if (j == n - 2) {
         addTriangle(currentFace[j], nextFace[j], lastV);
       } else {
@@ -335,8 +342,32 @@ void makeDChain (float w, int m) { // make a chain of size 2w wiht m elements
  int addVertex(pt P) { G[nv].set(P); nv++; return nv-1;};
  int addVertex(float x, float y, float z) { G[nv].x=x; G[nv].y=y; G[nv].z=z; nv++; return nv-1;};
   
- void addTriangle(int i, int j, int k) {V[nc++]=i; V[nc++]=j; V[nc++]=k; visible[nt++]=true;} // adds a triangle
- void addTriangle(int i, int j, int k, int m) {V[nc++]=i; V[nc++]=j; V[nc++]=k; tm[nt]=m; visible[nt++]=true; } // adds a triangle
+ void addTriangle(int i, int j, int k) {
+    V[nc++]=i;
+    V[nc++]=j;
+    V[nc++]=k;
+    //add edges of triangle to edge list of mesh
+    addEdge(G[i],G[j]);
+    addEdge(G[j],G[k]);
+    addEdge(G[i],G[k]);
+
+    visible[nt++]=true;
+
+
+
+  } // adds a triangle
+ void addTriangle(int i, int j, int k, int m) {
+    V[nc++]=i;
+    V[nc++]=j; 
+    V[nc++]=k;
+
+    addEdge(G[i],G[j]);
+    addEdge(G[j],G[k]);
+    addEdge(G[i],G[k]);
+
+    tm[nt]=m; 
+    visible[nt++]=true; 
+  } // adds a triangle
  void addQuad(int i, int j, int k, int l) {
   addTriangle(k, j, i);
   addTriangle(j, k, l);
