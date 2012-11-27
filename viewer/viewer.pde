@@ -28,6 +28,8 @@ RotateMatrix matrix;
 Solid s,s1,s2,s3;
 int numRotations;
  Test test;
+  float time = 0.0,
+        deltaT = 0.01;
 // String SCC = "-"; // info on current corner
    
 // ****************************** VIEW PARAMETERS *******************************************************
@@ -36,7 +38,10 @@ pt Q=P(0,0,0); vec I=V(1,0,0); vec J=V(0,1,0); vec K=V(0,0,1); // picked surface
 void initView() {Q=P(0,0,0); I=V(1,0,0); J=V(0,1,0); K=V(0,0,1); F = P(0,0,0); E = P(0,0,1500); U=V(0,1,0); } // declares the local frames
 
 // ******************************** MESHES ***********************************************
-Mesh M=new Mesh(); // meshes for models M0 and M1
+Mesh M=new Mesh(),
+     M1=new Mesh(),
+     M2=new Mesh(),
+     M3=new Mesh(); // meshes for models M0 and M1
 
 float volume1=0, volume0=0;
 float sampleDistance=1;
@@ -76,8 +81,6 @@ void setup() {
   s.readyToDraw(sCurve);
   O =s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
   //println("SCURVE1: "+sCurve);
-  // M.declareVectors();
-  // M.makeRevolution(s);
    mainView=true;
    //Create solids
    s1Curve=new Curve();
@@ -101,6 +104,17 @@ void setup() {
    s3.setOrigin(new pt(400,200,0));
    s3.k=8;
    s3.readyToDraw(s3Curve);
+
+  M.declareVectors();
+  M.makeRevolution(s);
+  M1.declareVectors();
+  M1.makeRevolution(s1);
+  M2.declareVectors();
+  M2.makeRevolution(s2);
+  M3.declareVectors();
+  M3.makeRevolution(s3);
+
+   M.map(0, M1);
 
    //initSolids();
    edit=false;
@@ -145,6 +159,15 @@ void draw() {
   s1.draw();
   s2.draw();
   s3.draw(); 
+
+  M.drawMorph(time);
+
+  if(time>=1.0)
+    deltaT=-.01;
+  else if(time<=0)
+    deltaT=.01;
+  time+=deltaT;
+
 // -------------------------- display and edit control points of the spines and box ----------------------------------   
     if(pressed) {
          if (keyPressed&&(key=='a')) {//Picks a point on the polygon
@@ -163,7 +186,7 @@ void draw() {
      }
      
      // -------------------------------------------------------- show mesh ----------------------------------   
-   //if(showMesh) { fill(yellow); if(M.showEdges) stroke(white);  else noStroke(); M.showFront();} 
+   if(showMesh) { fill(yellow); stroke(white); M.showFront();} 
    
     // -------------------------- pick mesh corner ----------------------------------   
    if(pressed) if (keyPressed&&(key=='.')) M.pickc(Pick());
@@ -243,8 +266,8 @@ void mouseDragged() {
        }
        s3.readyToDraw(s3Curve);
      }
-    //M.resetCounters();
-    //M.makeRevolution(s);
+    M.resetCounters();
+    M.makeRevolution(s);
   } 
   if(keyPressed&&key=='s') {
      
@@ -438,7 +461,7 @@ void keyPressed() {
   if(key=='*') {sampleDistance*=2;}
   if(key=='(') {}
   if(key==')') {showSilhouette=!showSilhouette;}
-  if(key=='_') //{M.flatShading=!M.flatShading;}
+  if(key=='_') {M.flatShading=!M.flatShading;}
   if(key=='+') {M.flip();} // flip edge of M
   if(key=='-') {M.showEdges=!M.showEdges;}
   if(key=='=') //{C.P[5].set(C.P[0]); C.P[6].set(C.P[1]); C.P[7].set(C.P[2]); C.P[8].set(C.P[3]); C.P[9].set(C.P[4]);}

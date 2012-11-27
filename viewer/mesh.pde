@@ -68,6 +68,25 @@ vec[] Nt = new vec [maxnt];                // triangles normals
  int[] SMt = new int[maxnt];                // sum of triangle markers for isolation
  int prevc = 0;                             // previously selected corner
  int rings=2;                           // number of rings for colorcoding
+ MeshMap[] mappings = new MeshMap[3];
+
+//  ==================================== make mapping ===============================
+void map(int id, Mesh map) {
+  mappings[id] = new MeshMap(this, map);
+}
+
+void drawMorph(float t) {
+  for (int i = 0; i < nt; i++) { // go through triangles first
+    List<pt> vertices = mappings[0].F2V.get(i);
+    for (pt morphTo : vertices) {
+      beginShape();
+        vertex(P(G[V[i + 0]],t,morphTo));
+        vertex(P(G[V[i + 1]],t,morphTo));
+        vertex(P(G[V[i + 2]],t,morphTo));
+      endShape();
+    }
+  }
+}
 
 //  ==================================== OFFSETS ====================================
  void offset() {
@@ -178,6 +197,7 @@ vec[] Nt = new vec [maxnt];                // triangles normals
       }
     }
   }
+  normals();
  }
 
  void makeGrid (int w) { // make a 2D grid of w x w vertices

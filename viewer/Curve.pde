@@ -496,4 +496,4 @@ String toString(){
   vec calculateK(){
    return N(calculateJ(),calculateI()).normalize();
   }
-}  // end class Curve
+};  // end class Curve
