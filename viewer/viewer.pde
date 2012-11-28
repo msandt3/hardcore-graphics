@@ -217,7 +217,7 @@ void draw() {
   hint(DISABLE_DEPTH_TEST);  // show on top
  // stroke(black); if(showControl) {C0.showSamples(2);}
   if(showMesh&&showSilhouette) {stroke(dbrown); M.drawSilhouettes(); }  // display silhouettes
-  strokeWeight(2); stroke(red);if(showMesh&&showNMBE) M.showMBEs();  // manifold borders
+  //strokeWeight(2); stroke(red);if(showMesh&&showNMBE) M.showMBEs();  // manifold borders
   camera(); // 2D view to write help text
   writeFooterHelp();
   hint(ENABLE_DEPTH_TEST); // show silouettes
