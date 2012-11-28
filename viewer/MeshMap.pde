@@ -66,7 +66,6 @@ class MeshMap {
 				for (int j = 0; j < B.nv; j++) {
 					for (Edge e2 : B.edgeMap.get(j)) {
 						if (e != e2 && !E2E.containsKey(e2)) list.add(e2);
-						else println("FUUUCK");
 					}
 				}
 				E2E.put(e, list);
