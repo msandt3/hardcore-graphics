@@ -25,23 +25,19 @@ class MeshMap {
 
 	void faceToVertex() {
 		for (int i = 0; i < A.nt; i++) {
-			float max = 0;
-			int maxKey = 0;
+			ArrayList<pt> list = new ArrayList<pt>();
 			for (int j = 0; j < B.nv; j++) {
-				float dot = d(A.Nt[i], B.Nv[j]);
-				if (dot > max) {
-					max = dot;
-					maxKey = j;
+				if (LSD(A.Nt[i], B, j)) {
+					list.add(B.G[B.V[j]]);
 				}
 			}
-			ArrayList<pt> list = new ArrayList<pt>();
-			list.add(B.G[B.V[maxKey]]);
+			
 			F2V.put(i, list);
 		}
 	}
 
 	void vertexToFace() {
-		for (int i = 0; i < A.nt; i++) {
+		/*for (int i = 0; i < A.nt; i++) {
 			float max = 0;
 			int maxKey = 0;
 			for (int j = 0; j < B.nv; j++) {
@@ -52,6 +48,16 @@ class MeshMap {
 				}
 			}
 			V2F.put(i, new ArrayList<Integer>(maxKey));
+		}*/
+		for (int i = 0; i < A.nv; i++) {
+			ArrayList<Integer> list = new ArrayList<Integer>();
+			for (int j = 0; j < B.nt; j++) {
+				if (LSD(B.Nt[j], A, i)) {
+					println("i: " + i + " j: " + j);
+					list.add(j);
+				}
+				V2F.put(i, list);
+			}
 		}
 	}
 
@@ -61,5 +67,13 @@ class MeshMap {
 
 	pt getBVertex(int v) {
 		return B.G[B.V[v]];
+	}
+
+	boolean LSD(vec N, Mesh m, int v) {
+		List<vec> edges = m.edgeMap.get(v);
+		for (vec edge : edges) {
+			if (d(N, edge) >= 0) return false;
+		}
+		return true;
 	}
 };

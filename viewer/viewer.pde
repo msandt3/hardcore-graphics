@@ -106,15 +106,11 @@ void setup() {
    s3.readyToDraw(s3Curve);
 
   M.declareVectors();
-  M.makeRevolution(s);
   M1.declareVectors();
-  M1.makeRevolution(s1);
   M2.declareVectors();
-  M2.makeRevolution(s2);
   M3.declareVectors();
-  M3.makeRevolution(s3);
 
-   M.map(0, M1);
+   regenerateMeshes();
 
    //initSolids();
    edit=false;
@@ -155,10 +151,10 @@ void draw() {
   directionalLight(255,255,255,Li.x,Li.y,Li.z); // direction of light: behind and above the viewer
   specular(255,255,0); shininess(5);
   
-  s.draw();
-  s1.draw();
-  s2.draw();
-  s3.draw(); 
+  //s.draw();
+  //s1.draw();
+  //s2.draw();
+  //s3.draw(); 
 
   M.drawMorph(time);
 
@@ -186,7 +182,13 @@ void draw() {
      }
      
      // -------------------------------------------------------- show mesh ----------------------------------   
-   if(showMesh) { fill(yellow); stroke(white); M.showFront();} 
+   if(showMesh) { 
+    fill(yellow); stroke(white);
+    M.showFront();
+    M1.showFront();
+    M2.showFront();
+    M3.showFront();
+  } 
    
     // -------------------------- pick mesh corner ----------------------------------   
    if(pressed) if (keyPressed&&(key=='.')) M.pickc(Pick());
@@ -224,6 +226,20 @@ void draw() {
   
 } // end draw
  
+ void regenerateMeshes() {
+    M.resetCounters();
+    M.makeRevolution(s);
+    M1.resetCounters();
+    M1.makeRevolution(s1);
+    M2.resetCounters();
+    M2.makeRevolution(s2);
+    M3.resetCounters();
+    M3.makeRevolution(s3);
+
+    M.map(0, M1);
+    //M.map(1, M2);
+    //M.map(2, M3);
+ }
  
  // ****************************************************************************************************************************** INTERRUPTS
 Boolean pressed=false;
@@ -266,8 +282,7 @@ void mouseDragged() {
        }
        s3.readyToDraw(s3Curve);
      }
-    M.resetCounters();
-    M.makeRevolution(s);
+     regenerateMeshes();
   } 
   if(keyPressed&&key=='s') {
      
@@ -423,7 +438,22 @@ void keyPressed() {
    
   if(key=='A')// {C.savePts();}
   if(key=='B') {}
-  if(key=='C') //{C.loadPts();} // save curve
+  if(key=='C') {
+   if(edit) {
+     sCurve = sCurve.makeConvex();
+     s.readyToDraw(sCurve);
+   } else if(edit1) {
+     s1Curve.makeConvex();
+     s1.readyToDraw(s1Curve);
+   } else if(edit2) {
+     s2Curve.makeConvex();
+     s2.readyToDraw(s2Curve);
+   } else if(edit3) {
+     s3Curve.makeConvex();
+     s3.readyToDraw(s3Curve);
+   }
+   regenerateMeshes();
+  }
   if(key=='D') {} //move in depth without rotation (draw)
   if(key=='E') {M.smoothen(); M.normals();}
   if(key=='F') {}
@@ -461,7 +491,12 @@ void keyPressed() {
   if(key=='*') {sampleDistance*=2;}
   if(key=='(') {}
   if(key==')') {showSilhouette=!showSilhouette;}
-  if(key=='_') {M.flatShading=!M.flatShading;}
+  if(key=='_') {
+    M.flatShading=!M.flatShading;
+    M1.flatShading=!M1.flatShading;
+    M2.flatShading=!M2.flatShading;
+    M3.flatShading=!M3.flatShading;
+  }
   if(key=='+') {M.flip();} // flip edge of M
   if(key=='-') {M.showEdges=!M.showEdges;}
   if(key=='=') //{C.P[5].set(C.P[0]); C.P[6].set(C.P[1]); C.P[7].set(C.P[2]); C.P[8].set(C.P[3]); C.P[9].set(C.P[4]);}

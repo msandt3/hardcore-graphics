@@ -126,6 +126,7 @@ boolean parallel (vec U, vec V) {return n(N(U,V))<n(U)*n(V)*0.00001; }          
 float angle(vec U, vec V) {return acos(d(U,V)/n(V)/n(U)); };                                         // angle(U,V)
 boolean cw(vec U, vec V, vec W) {return m(U,V,W)>=0; };                                              // (UxV)*W>0  U,V,W are clockwise
 boolean cw(pt A, pt B, pt C, pt D) {return volume(A,B,C,D)>=0; };                                    // tet is oriented so that A sees B, C, D clockwise 
+boolean isLeft(pt A, pt B, pt C) { return ((B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x)) < 0;}
 
 // ===== rotate 
 

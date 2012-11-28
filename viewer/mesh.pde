@@ -38,6 +38,8 @@ class Mesh {
 vec[] Nv = new vec [maxnv];                 // vertex normals or laplace vectors
 vec[] Nt = new vec [maxnt];                // triangles normals
 
+Map<Integer, List<vec>> edgeMap = new HashMap<Integer, List<vec>>();
+
  // auxiliary vertices
  int[] W = new int [3*maxnt];               // mid-edge vertex indices for subdivision (associated with corner opposite to edge)
  pt[] G2 = new pt [maxnv]; //2008-03-06 JJ misc
@@ -71,18 +73,36 @@ vec[] Nt = new vec [maxnt];                // triangles normals
  MeshMap[] mappings = new MeshMap[3];
 
 //  ==================================== make mapping ===============================
-void map(int id, Mesh map) {
-  mappings[id] = new MeshMap(this, map);
+void map(int id, Mesh m) {
+  mappings[id] = new MeshMap(this, m);
 }
 
 void drawMorph(float t) {
+  MeshMap map = mappings[0];
   for (int i = 0; i < nt; i++) { // go through triangles first
-    List<pt> vertices = mappings[0].F2V.get(i);
+    List<pt> vertices = map.F2V.get(i);
     for (pt morphTo : vertices) {
+      fill(green);
+      noStroke();
       beginShape();
-        vertex(P(G[V[i + 0]],t,morphTo));
-        vertex(P(G[V[i + 1]],t,morphTo));
-        vertex(P(G[V[i + 2]],t,morphTo));
+        vertex(P(G[V[3 * i + 0]],t,morphTo));
+        vertex(P(G[V[3 * i + 1]],t,morphTo));
+        vertex(P(G[V[3 * i + 2]],t,morphTo));
+      endShape();
+    }
+  }
+
+  for (int i = 0; i < nv; i++) {
+    List<Integer> triangles = map.V2F.get(i);
+    for (Integer triangle : triangles) {
+      //println(i);
+      //println("triangle: " + triangle);
+      fill(red);
+      noStroke();
+      beginShape();
+        vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 0))));
+        vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 1))));
+        vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 2))));
       endShape();
     }
   }
@@ -161,7 +181,7 @@ void drawMorph(float t) {
    return this;
    }
 
- Mesh empty() {nv=0; nt=0; nc=0; return this;}
+ Mesh empty() {nv=0; nt=0; nc=0; edgeMap = new HashMap<Integer, List<vec>>(); return this;}
  void resetCounters() {nv=0; nt=0; nc=0;}
  void rememberCounters() {nvr=nv; ntr=nt; ncr=nc;}
  void restoreCounters() {nv=nvr; nt=ntr; nc=ncr;}
@@ -640,7 +660,7 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
   void writeTri (int i) {println("T"+i+": V = ("+V[3*i]+":"+v(o(3*i))+","+V[3*i+1]+":"+v(o(3*i+1))+","+V[3*i+2]+":"+v(o(3*i+2))+")"); };
    
 //  ==========================================================  NORMALS ===========================================
-  void normals() {computeTriNormals(); computeVertexNormals(); }
+  void normals() {computeTriNormals(); computeVertexNormals(); computeEdges(); }
   void computeValenceAndResetNormals() {      // caches valence of each vertex
     for (int i=0; i<nv; i++) {Nv[i]=V();  Valence[i]=0;};  // resets the valences to 0
     for (int i=0; i<nc; i++) {Valence[v(i)]++; };
@@ -651,6 +671,16 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
     for (int i=0; i<nv; i++) {Nv[i].set(0,0,0);};  // resets the valences to 0
     for (int i=0; i<nc; i++) {Nv[v(i)].add(Nt[t(i)]);};
     for (int i=0; i<nv; i++) {Nv[i].normalize();};            };
+  void computeEdges() {
+    for (int i=0; i<nc; i++) {
+      if (!edgeMap.containsKey(v(i))) {
+        edgeMap.put(v(i), new ArrayList<vec>());
+      }
+
+      edgeMap.get(v(i)).add(V(g(i), g(n(i))));
+      edgeMap.get(v(i)).add(V(g(i), g(p(i))));
+    };
+  }
   void showVertexNormals() {for (int i=0; i<nv; i++) show(G[i],V(10*r,Nv[i]));  };
   void showTriNormals() {for (int i=0; i<nt; i++) show(triCenter(i),V(10*r,U(Nt[i])));  };
   void normalizeTriNormals() {for (int i=0; i<nt; i++) Nt[i].normalize(); };
