@@ -3,6 +3,7 @@ import processing.opengl.*;                // load OpenGL libraries and utilitie
 import javax.media.opengl.*; 
 import javax.media.opengl.glu.*; 
 import java.nio.*;
+import java.util.Map.Entry;
 GL gl; 
 GLU glu; 
 
@@ -110,7 +111,8 @@ void setup() {
   M2.declareVectors();
   M3.declareVectors();
 
-   regenerateMeshes();
+   generateMeshes();
+   M.map(0, M1);
 
    //initSolids();
    edit=false;
@@ -225,8 +227,8 @@ void draw() {
     pressed=false;
   
 } // end draw
- 
- void regenerateMeshes() {
+
+void generateMeshes() {
     M.resetCounters();
     M.makeRevolution(s);
     M1.resetCounters();
@@ -235,8 +237,12 @@ void draw() {
     M2.makeRevolution(s2);
     M3.resetCounters();
     M3.makeRevolution(s3);
+}
+ 
+ void regenerateMeshes() {
+    generateMeshes();
 
-    M.map(0, M1);
+    M.remap(0);
     //M.map(1, M2);
     //M.map(2, M3);
  }
@@ -282,7 +288,7 @@ void mouseDragged() {
        }
        s3.readyToDraw(s3Curve);
      }
-     regenerateMeshes();
+     //regenerateMeshes();
   } 
   if(keyPressed&&key=='s') {
      
@@ -395,6 +401,7 @@ void mouseDragged() {
   }
 
 void mouseReleased() {
+  regenerateMeshes();
    //  U.set(M(J)); // reset camera up vector
     }
   

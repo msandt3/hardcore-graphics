@@ -38,7 +38,7 @@ class Mesh {
 vec[] Nv = new vec [maxnv];                 // vertex normals or laplace vectors
 vec[] Nt = new vec [maxnt];                // triangles normals
 
-Map<Integer, List<vec>> edgeMap = new HashMap<Integer, List<vec>>();
+Map<Integer, List<Edge>> edgeMap = new HashMap<Integer, List<Edge>>();
 
  // auxiliary vertices
  int[] W = new int [3*maxnt];               // mid-edge vertex indices for subdivision (associated with corner opposite to edge)
@@ -77,8 +77,28 @@ void map(int id, Mesh m) {
   mappings[id] = new MeshMap(this, m);
 }
 
+void remap(int id) {
+  mappings[id].remap();
+}
+
 void drawMorph(float t) {
   MeshMap map = mappings[0];
+
+  for (Entry<Edge, List<Edge>> entry : map.E2E.entrySet()) {
+      Edge A = entry.getKey();
+      List<Edge> edges = entry.getValue();
+      for (Edge B : edges) {
+        fill(blue);
+        noStroke();
+        beginShape();
+          vertex(P(A.Y,t,B.X));
+          vertex(P(A.Y,t,B.Y));
+          vertex(P(A.X,t,B.X));
+          vertex(P(A.X,t,B.Y));
+        endShape();
+      }
+  }
+
   for (int i = 0; i < nt; i++) { // go through triangles first
     List<pt> vertices = map.F2V.get(i);
     for (pt morphTo : vertices) {
@@ -182,7 +202,7 @@ void drawMorph(float t) {
    return this;
    }
 
- Mesh empty() {nv=0; nt=0; nc=0; edgeMap = new HashMap<Integer, List<vec>>(); return this;}
+ Mesh empty() {nv=0; nt=0; nc=0; edgeMap = new HashMap<Integer, List<Edge>>(); return this;}
  void resetCounters() {nv=0; nt=0; nc=0;}
  void rememberCounters() {nvr=nv; ntr=nt; ncr=nc;}
  void restoreCounters() {nv=nvr; nt=ntr; nc=ncr;}
@@ -673,13 +693,14 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
     for (int i=0; i<nc; i++) {Nv[v(i)].add(Nt[t(i)]);};
     for (int i=0; i<nv; i++) {Nv[i].normalize();};            };
   void computeEdges() {
+    edgeMap.clear();
     for (int i=0; i<nc; i++) {
       if (!edgeMap.containsKey(v(i))) {
-        edgeMap.put(v(i), new ArrayList<vec>());
+        edgeMap.put(v(i), new ArrayList<Edge>());
       }
 
-      edgeMap.get(v(i)).add(V(g(i), g(n(i))));
-      edgeMap.get(v(i)).add(V(g(i), g(p(i))));
+      edgeMap.get(v(i)).add(edge(g(i), g(n(i))));
+      edgeMap.get(v(i)).add(edge(g(i), g(p(i))));
     };
   }
   void showVertexNormals() {for (int i=0; i<nv; i++) show(G[i],V(10*r,Nv[i]));  };
