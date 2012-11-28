@@ -60,16 +60,14 @@ class MeshMap {
 
 			E2E.put(i, list);
 		}*/
-		for (int i = 0; i < A.nv; i++) {
-			for (Edge e : A.edgeMap.get(i)) {
-				ArrayList<Edge> list = new ArrayList<Edge>();
-				for (int j = 0; j < B.nv; j++) {
-					for (Edge e2 : B.edgeMap.get(j)) {
-						if (e != e2 && !E2E.containsKey(e2)) list.add(e2);
-					}
+		for (Edge e : A.edges) {
+			ArrayList<Edge> list = new ArrayList<Edge>();
+			for (int j = 0; j < B.nv; j++) {
+				for (Edge e2 : B.edgeMap.get(j)) {
+					if (e != e2 && !E2E.containsKey(e2)) list.add(e2);
 				}
-				E2E.put(e, list);
 			}
+			E2E.put(e, list);
 		}
 	}
 
