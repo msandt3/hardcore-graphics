@@ -37,24 +37,13 @@ class MeshMap {
 	}
 
 	void vertexToFace() {
-		/*for (int i = 0; i < A.nt; i++) {
-			float max = 0;
-			int maxKey = 0;
-			for (int j = 0; j < B.nv; j++) {
-				float dot = d(A.Nv[i], B.Nt[j]);
-				if (dot > max) {
-					max = dot;
-					maxKey = j;
-				}
-			}
-			V2F.put(i, new ArrayList<Integer>(maxKey));
-		}*/
 		for (int i = 0; i < A.nv; i++) {
 			ArrayList<Integer> list = new ArrayList<Integer>();
 			for (int j = 0; j < B.nt; j++) {
 				if (LSD(B.Nt[j], A, i)) {
-					println("i: " + i + " j: " + j);
+					//println("i: " + i + " j: " + j);
 					list.add(j);
+					//print(j);
 				}
 				V2F.put(i, list);
 			}

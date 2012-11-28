@@ -91,11 +91,12 @@ void drawMorph(float t) {
       endShape();
     }
   }
-
+//println(nv);
   for (int i = 0; i < nv; i++) {
     List<Integer> triangles = map.V2F.get(i);
+    //if (triangles.size() > 0) println("i: " + i);
     for (Integer triangle : triangles) {
-      //println(i);
+      //println("i: " + i + " tri: " + triangle);
       //println("triangle: " + triangle);
       fill(red);
       noStroke();
