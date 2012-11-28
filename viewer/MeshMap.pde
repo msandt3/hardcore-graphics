@@ -27,8 +27,8 @@ class MeshMap {
 	void faceToVertex() {
 		for (int i = 0; i < A.nt; i++) {
 			ArrayList<pt> list = new ArrayList<pt>();
-			for (int j = 0; j < B.nv; j++) {
-				if (LSD(A.Nt[i], B, j)) {
+			for (int j = 0; j < B.nc; j++) {
+				if (LSD(A.Nt[i], B, B.V[j])) {
 					list.add(B.G[B.V[j]]);
 				}
 			}
@@ -38,10 +38,11 @@ class MeshMap {
 	}
 
 	void vertexToFace() {
-		for (int i = 0; i < A.nv; i++) {
+		for (int i = 0; i < A.nc; i++) {
 			ArrayList<Integer> list = new ArrayList<Integer>();
 			for (int j = 0; j < B.nt; j++) {
-				if (LSD(B.Nt[j], A, i)) {
+				if (LSD(B.Nt[j], A, A.V[i])) {
+					//println("i: " + i + " j: " + j);
 					//println("i: " + i + " j: " + j);
 					list.add(j);
 					//print(j);

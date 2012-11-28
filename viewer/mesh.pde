@@ -97,10 +97,10 @@ void drawMorph(float t) {
         fill(blue);
         noStroke();
         beginShape();
-          vertex(P(A.Y,t,B.X));
-          vertex(P(A.Y,t,B.Y));
           vertex(P(A.X,t,B.X));
           vertex(P(A.X,t,B.Y));
+          vertex(P(A.Y,t,B.X));
+          vertex(P(A.Y,t,B.Y));
         endShape();
       }
   }
@@ -118,7 +118,7 @@ void drawMorph(float t) {
     }
   }
 //println(nv);
-  for (int i = 0; i < nv; i++) {
+  for (int i = 0; i < nc; i++) {
     List<Integer> triangles = map.V2F.get(i);
     //if (triangles.size() > 0) println("i: " + i);
     for (Integer triangle : triangles) {
