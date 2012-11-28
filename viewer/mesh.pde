@@ -34,7 +34,7 @@ class Mesh {
  pt[] G = new pt [maxnv];                   // geometry table (vertices)
  int[] V = new int [3*maxnt];               // V table (triangle/vertex indices)
  int[] O = new int [3*maxnt];               // O table (opposite corner indices)
- ArrayList<Edge> edges = new ArrayList<Edge>(); //list of edges for edge to edge mapping of meshes
+ List<Edge> edges = new ArrayList<Edge>(); //list of edges for edge to edge mapping of meshes
 
  // Normal vectors
 vec[] Nv = new vec [maxnv];                 // vertex normals or laplace vectors
@@ -74,9 +74,14 @@ Map<Integer, List<Edge>> edgeMap = new HashMap<Integer, List<Edge>>();
  int rings=2;                           // number of rings for colorcoding
  MeshMap[] mappings = new MeshMap[3];
 // ===================================== Edge List ===========================
-void addEdge(pt A, pt B){
-  Edge temp = new Edge(A,B);
-  this.edges.add(temp);
+void addEdge(pt A, pt B, int nt){
+  int found = this.edges.indexOf(new Edge(A, B));
+  if (found != -1) {
+    this.edges.get(found).addTriangle(nt);
+    Edge f = this.edges.get(found);
+  } else {
+    this.edges.add(new Edge(A,B,nt));
+  }
 }
 //  ==================================== make mapping ===============================
 void map(int id, Mesh m) {
@@ -133,7 +138,7 @@ void drawMorph(float t) {
         endShape();
       }
   }
-  
+
 }
 
 //  ==================================== OFFSETS ====================================
@@ -389,9 +394,9 @@ void makeDChain (float w, int m) { // make a chain of size 2w wiht m elements
     V[nc++]=j;
     V[nc++]=k;
     //add edges of triangle to edge list of mesh
-    addEdge(G[i],G[j]);
-    addEdge(G[j],G[k]);
-    addEdge(G[i],G[k]);
+    addEdge(G[i],G[j], nt);
+    addEdge(G[j],G[k], nt);
+    addEdge(G[i],G[k], nt);
 
     visible[nt++]=true;
 
@@ -403,9 +408,9 @@ void makeDChain (float w, int m) { // make a chain of size 2w wiht m elements
     V[nc++]=j; 
     V[nc++]=k;
 
-    addEdge(G[i],G[j]);
-    addEdge(G[j],G[k]);
-    addEdge(G[i],G[k]);
+    addEdge(G[i],G[j], nt);
+    addEdge(G[j],G[k], nt);
+    addEdge(G[i],G[k], nt);
 
     tm[nt]=m; 
     visible[nt++]=true; 

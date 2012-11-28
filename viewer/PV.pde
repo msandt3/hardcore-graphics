@@ -52,6 +52,10 @@ vec R(vec V, float a, vec I, vec J) {float x=d(V,I), y=d(V,J); float c=cos(a), s
 
 // ===== point class
 class pt { float x=0,y=0,z=0; 
+    public boolean equals(Object o) {
+      pt e = (pt) o;
+      return (this.x == e.x && this.y == e.y && this.z == e.z);
+    }
    pt () {}; 
    pt (float px, float py, float pz) {x = px; y = py; z = pz; };
    pt set (float px, float py, float pz) {x = px; y = py; z = pz; return this;}; 
