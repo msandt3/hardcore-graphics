@@ -94,7 +94,6 @@ void remap(int id) {
 
 void drawMorph(float t) {
   MeshMap map = mappings[0];
-
   for (int i = 0; i < nt; i++) { // go through triangles first
     List<pt> vertices = map.F2V.get(i);
     for (pt morphTo : vertices) {
@@ -123,7 +122,6 @@ void drawMorph(float t) {
       endShape();
     }
   }
-
   for (Entry<Edge, List<Edge>> entry : map.E2E.entrySet()) {
       Edge A = entry.getKey();
       List<Edge> edges = entry.getValue();

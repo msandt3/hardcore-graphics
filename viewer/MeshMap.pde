@@ -51,7 +51,43 @@ class MeshMap {
 			}
 		}
 	}
-
+	// ==================== UTILITY FUNCTIONS FOR E2E MAPS ==================
+	//get the tangents for a particular edge e in mesh m
+	ArrayList<vec> getTangents(Edge e, Mesh m){
+    	ArrayList<vec> tangents = new ArrayList<vec>();
+    	for(int tri : e.triangles){
+      		tangents.add(getTangent(e,m.Nt[tri]));
+    	}
+    	return tangents;
+  	}
+  	//get the tangents for a particular edge triangleNorm combination
+  	vec getTangent(Edge e, vec faceNorm){
+    	return N(V(e),faceNorm);
+  	}
+  	//get the average of the triangle normals for an edge in mesh m
+  	vec getNormal(Edge e, Mesh m){
+    	return V(m.Nt[e.triangles.get(0)],m.Nt[e.triangles.get(1)]);
+  	}
+  	boolean shouldMap(Edge e1, Mesh m1, Edge e2, Mesh m2){
+  		vec norm = getNormal(e1,m1);
+  		ArrayList<vec> tangents = getTangents(e2,m2);
+  		for (vec tangent : tangents){
+  			if ( d(norm,tangent) > 0 ){
+  				return false;
+  			}
+  		}
+  		return true;
+  	}
+  	boolean shouldMap(Edge e, Mesh m){
+  		vec norm = getNormal(e,m);
+  		ArrayList<vec> tangents = getTangents(e,m);
+  		for (vec tangent : tangents){
+  			if( d(norm,tangent) > 0)
+  				return false;
+  		}
+  		return true;
+  	}
+  	// =================== END E2E UTILITY FUNCTIONS =====================
 	void edgeToEdge() {
 		/*for (int i = 0; i < A.nv; i++) {
 			ArrayList<vec> list = new ArrayList<vec>();
@@ -65,7 +101,9 @@ class MeshMap {
 			ArrayList<Edge> list = new ArrayList<Edge>();
 			for (Edge e2 : B.edges) {
 				println(e2.triangles.size());
-				list.add(e2);
+				//this is the check for positive dot products (not working)
+				if(shouldMap(e,A,e2,B) && shouldMap(e2,B,e,A))
+					list.add(e2);
 			}
 			E2E.put(e, list);
 		}
