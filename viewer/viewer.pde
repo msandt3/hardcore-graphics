@@ -257,8 +257,8 @@ void mouseDragged() {
           sCurve.dragPoint(V(0,new vec(0,0,0),.5*(mouseY-pmouseY),J));
         }
         else{
-         sCurve.dragPoint(V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),J));
-       }
+            sCurve.dragPoint(V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),J));
+        }
        s.readyToDraw(sCurve);
      }
      if(edit1&&s1Curve.p!=-1){
@@ -434,7 +434,17 @@ void keyPressed() {
   if(key=='p') {}
   if(key=='q') {}
   if(key=='r') {}
-  if(key=='s') {} // drag curve control point in xz (mouseDragged)
+  if(key=='s') {
+    if(edit){
+      sCurve = sCurve.subdivision();
+    }else if(edit1){
+      s1Curve = s1Curve.subdivision();
+    }else if(edit2){
+      s2Curve = s2Curve.subdivision();
+    }else if(edit3){
+      s3Curve = s3Curve.subdivision();
+    }
+  } //subdivide currently selected control curve
   if(key=='t') {showTube=!showTube;}
   if(key=='u') {}
   if(key=='v') {} // move S2
