@@ -437,12 +437,16 @@ void keyPressed() {
   if(key=='s') {
     if(edit){
       sCurve = sCurve.subdivision();
+      s.readyToDraw(sCurve);
     }else if(edit1){
       s1Curve = s1Curve.subdivision();
+      s1.readyToDraw(s1Curve);
     }else if(edit2){
       s2Curve = s2Curve.subdivision();
+      s2.readyToDraw(s2Curve);
     }else if(edit3){
       s3Curve = s3Curve.subdivision();
+      s3.readyToDraw(s3Curve);
     }
   } //subdivide currently selected control curve
   if(key=='t') {showTube=!showTube;}
