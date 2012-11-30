@@ -64,7 +64,7 @@ class MeshMap {
 		for (Edge e : A.edges) {
 			ArrayList<Edge> list = new ArrayList<Edge>();
 			for (Edge e2 : B.edges) {
-				println(e2.triangles.size());
+				//println(e2.triangles.size());
 				list.add(e2);
 			}
 			E2E.put(e, list);

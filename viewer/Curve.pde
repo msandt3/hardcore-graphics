@@ -133,9 +133,7 @@ class Curve {
        if (d(M,pts.get(i))<d(M,pts.get(p))) 
          p=i; 
      }
-     
      pts.add(p,M);
-
   }
    
   Curve makeFrom(Curve C, int v) {
@@ -228,6 +226,21 @@ class Curve {
         return;
       }
     }
+  }
+  void pickPointForInsertion(pt M){
+    p=0;
+    pt min=this.pts.get(0);
+    for (int i=0; i<pts.size(); i++){ 
+      if (d(M,pts.get(i))<d(M,min)) {
+        p=i;
+        min=pts.get(i);
+      }
+    }
+    
+    //if(this.p==pts.size()-1)
+      //return;
+    pts.add(p,M);
+   // this.makeConvex();
   }
   float distanceTo(pt M) {
     float md=d(M,pts.get(0));
