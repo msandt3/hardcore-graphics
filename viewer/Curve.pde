@@ -86,7 +86,10 @@ class Curve {
     }
   }
   void dragPoint(vec V) {
-    pts.get(p).add(V);
+    pt temp = P(pts.get(p));
+    if(temp.add(V).x >= 0){
+      pts.get(p).add(V);
+    }
   }
   void dragAll(vec V) {
     for (int i=0; i<n; i++)
