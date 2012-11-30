@@ -68,11 +68,25 @@ class MeshMap {
   	vec getNormal(Edge e, Mesh m){
     	return V(m.Nt[e.triangles.get(0)],m.Nt[e.triangles.get(1)]);
   	}
+  	vec getNormal(Edge e1, Edge e2){
+  		return N(V(e1),V(e2));
+  	}
   	boolean shouldMap(Edge e1, Mesh m1, Edge e2, Mesh m2){
-  		vec norm = getNormal(e1,m1);
-  		ArrayList<vec> tangents = getTangents(e2,m2);
-  		for (vec tangent : tangents){
-  			if ( d(norm,tangent) > 0 ){
+  		vec norm = getNormal(e1,e2);
+  		ArrayList<vec> e1tangents = getTangents(e1,m1);
+  		ArrayList<vec> e2tangents = getTangents(e2,m2);
+  		println("Number of tangents for edge 1 - "+e1tangents.size());
+  		println("Number of tangents for edge 2 - "+e2tangents.size());
+
+  		for (vec e1tangent : e1tangents){
+  			if ( d(norm,e1tangent) >= 0 ){
+  				println("Should not map edge - "+e1+" to edge "+e2);
+  				return false;
+  			}
+  		}
+  		for(vec e2tangent : e2tangents){
+  			if ( d(norm,e2tangent) >= 0){
+  				println("Should not map edge - "+e1+" to edge "+e2);
   				return false;
   			}
   		}
@@ -102,7 +116,7 @@ class MeshMap {
 			for (Edge e2 : B.edges) {
 				println(e2.triangles.size());
 				//this is the check for positive dot products (not working)
-				if(shouldMap(e,A,e2,B) && shouldMap(e2,B,e,A))
+				if(shouldMap(e,A,e2,B))
 					list.add(e2);
 			}
 			E2E.put(e, list);
