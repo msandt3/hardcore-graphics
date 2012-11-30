@@ -201,9 +201,10 @@ class Solid{
     int curvesSize = curves.size();
     int ptsSize = curves.get(0).pts.size();
 
-    String[] input = new String[(curvesSize*(ptsSize+1))+1];
+    String[] input = new String[(curvesSize*(ptsSize+1))+2];
     int s = 0;
     input[s++] = str(curves.size());
+    input[s++] = str(ptsSize);
     int curveI = 0;
     ArrayList<String> stringList;
     for(Curve c : curves){
@@ -217,5 +218,39 @@ class Solid{
       curveI++;
     }
     saveStrings(fn,input);
+  }
+
+  void load(String fn){
+    String[] inputs = loadStrings(fn);
+    int s = 0;
+    int numCurves = Integer.parseInt(inputs[s++]);
+    int numPts = Integer.parseInt(inputs[s++]);
+
+    for(int i=0; i<numCurves; i++){
+      Curve temp = new Curve();
+      int curveIndex = Integer.parseInt(inputs[s++]);
+      for(int j=0; j<numPts; j++){
+        //compute the x value of the curve point
+        String ptString = inputs[s++];
+        println(ptString);
+        int comma1 = ptString.indexOf(',');
+        float x = float(ptString.substring(0,comma1));
+        //compute the y value of the curve point
+        String ptString2 = ptString.substring(comma1+1);
+        int comma2 = ptString2.indexOf(',');
+        float y = float(ptString2.substring(0,comma2));
+        //compute the z value of the curve point
+        float z = float(ptString2.substring(comma2+1));
+        temp.pts.add(P(x,y,z));
+        //curves.get(curveIndex).pts.add(P(x,y,z));
+      }
+      this.curves.add(temp);
+    }
+    //book keeping to ensure data for solid is maintained correctly
+    this.k = numCurves;
+    this.I = V(1,0,0);
+    this.J = V(0,1,0);
+    this.K = V(0,0,1);
+    this.origin = curves.get(0).pts.get(numPts-1);
   }
 }

@@ -76,35 +76,21 @@ void setup() {
   matrix=new RotateMatrix();
   temp=new Curve();
   drawRotate=false;
-  s=new Solid(sCurve);
-  s.k=5;
-  s.setOrigin(new pt(-500,200,0));
-  s.readyToDraw(sCurve);
+  s = new Solid();
+  s.load("data/solid.pts");
   O =s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
   //println("SCURVE1: "+sCurve);
    mainView=true;
    //Create solids
-   s1Curve=new Curve();
-   s1Curve.loadPts("data/P1.pts");
-   s1=new Solid(s1Curve);
-   s1.setOrigin(new pt(-250,-400,0));
-   s1.k=4;
-   s1.readyToDraw(s1Curve);
+   s1=new Solid();
+   s1.load("data/solid1.pts");
    
  
-   s2Curve=new Curve();
-   s2Curve.loadPts("data/P2.pts");
-   s2=new Solid(s2Curve);
-   s2.setOrigin(new pt(100,-400,0));
-   s2.k=6;
-   s2.readyToDraw(s2Curve);
+   s2 = new Solid();
+   s2.load("data/solid2.pts");
 
-   s3Curve=new Curve();
-   s3Curve.loadPts("data/P3.pts");
-   s3=new Solid(s3Curve);
-   s3.setOrigin(new pt(400,200,0));
-   s3.k=8;
-   s3.readyToDraw(s3Curve);
+   s3 = new Solid();
+   s3.load("data/solid3.pts");
 
   M.declareVectors();
   M1.declareVectors();
@@ -494,7 +480,13 @@ void keyPressed() {
   if(key=='T') {}
   if(key=='U') {}
   if(key=='V') {} 
-  if(key=='W') {M.saveMeshVTS();}
+  if(key=='W') {
+    //M.saveMeshVTS();
+    s.save("data/solid.pts");
+    s1.save("data/solid1.pts");
+    s2.save("data/solid2.pts");
+    s3.save("data/solid3.pts");
+  }
   if(key=='X') {} // drag mesh vertex in xy and neighbors (mouseDragged)
   if(key=='Y') {M.refine(); M.makeAllVisible();}
   if(key=='Z') {} // drag mesh vertex in xz and neighbors (mouseDragged)
