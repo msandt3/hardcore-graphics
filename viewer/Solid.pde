@@ -191,4 +191,31 @@ class Solid{
       }
     } 
   }
+  void save(){
+    String savePath = selectOutput("Select or specify .pts file where the curve points will be saved");  // Opens file chooser
+    if (savePath == null) {println("No output file was selected..."); return;}
+    else println("writing curve to "+savePath);
+    save(savePath);
+  }
+  void save(String fn){
+    int curvesSize = curves.size();
+    int ptsSize = curves.get(0).pts.size();
+
+    String[] input = new String[(curvesSize*(ptsSize+1))+1];
+    int s = 0;
+    input[s++] = str(curves.size());
+    int curveI = 0;
+    ArrayList<String> stringList;
+    for(Curve c : curves){
+      stringList = c.getSaveString();
+      input[s++] = str(curveI);
+
+      for(String s1 : stringList){
+        println("String for curve "+s1);
+        input[s++] = s1;
+      }
+      curveI++;
+    }
+    saveStrings(fn,input);
+  }
 }
