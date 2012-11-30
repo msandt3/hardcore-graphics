@@ -116,7 +116,7 @@ class MeshMap {
 			for (Edge e2 : B.edges) {
 				println(e2.triangles.size());
 				//this is the check for positive dot products (not working)
-				if(shouldMap(e,A,e2,B))
+				//if(shouldMap(e,A,e2,B))
 					list.add(e2);
 			}
 			E2E.put(e, list);

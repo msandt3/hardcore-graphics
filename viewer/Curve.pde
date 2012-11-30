@@ -91,6 +91,17 @@ class Curve {
       pts.get(p).add(V);
     }
   }
+   void pickPointForInsertion(pt M){	
+   p=0;
+    pt min=this.pts.get(0);
+    for (int i=0; i<pts.size(); i++){ 
+     if (d(M,pts.get(i))<d(M,min)) {
+         p=i;
+        min=pts.get(i);	
+    }	
+  }
+ pts.add(p,M);
+}
   void dragAll(vec V) {
     for (int i=0; i<n; i++)
       pts.get(i).add(V);

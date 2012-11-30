@@ -8,7 +8,7 @@ class Solid{
      curves=new ArrayList<Curve>();
      curves.add(p);
      this.I=new vec(1,0,0);
-     this.J=new vec(0,1,0);
+     this.J=V(p.pts.get(p.pts.size()-1),p.pts.get(0)).normalize();
      this.K=new vec(0,0,1);
      //origin
   }
@@ -53,7 +53,7 @@ class Solid{
   }
   void draw(){
     for(int i=0;i<curves.size();i++){
-      curves.get(i).drawPoints();
+     // curves.get(i).drawPoints();
       curves.get(i).briansDraw();
     } 
   }
@@ -175,12 +175,7 @@ class Solid{
     this.rotationalSweep(this.k);
     vec dV= V(tempOrigin,this.origin);
     this.translate(dV);
-    
-    Solid tempySolid=new Solid();
-    tempySolid.set(this);
-    tempySolid=tempySolid.toLocalSolid(new vec(1,0,0),new vec(0,1,0),new vec(0,0,1),this.origin);
-    tempySolid=tempySolid.toGlobalSolid(this.I,this.J,this.K,this.origin);
-    this.copyPts(tempySolid);
+
   }
   void translate(vec delta){
     pt tempPt;
@@ -190,5 +185,13 @@ class Solid{
         curves.get(i).pts.set(j,P(tempPt,delta));
       }
     } 
+  }
+  void drawOrientationVectors(){
+    stroke(red);
+    show(this.origin,V(50,this.I));
+    stroke(black);
+    show(this.origin,V(50,this.J));
+    stroke(green);
+    show(this.origin,V(50,this.K)); 
   }
 }

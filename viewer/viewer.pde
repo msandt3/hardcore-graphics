@@ -178,9 +178,6 @@ void draw() {
             else if(edit3)
              s3Curve.pickPoint(new pt(pmouseX,pmouseY,0));
        }
-         if(keyPressed&&(key=='i')){
-         }
-
      }
      
      // -------------------------------------------------------- show mesh ----------------------------------   
@@ -249,7 +246,57 @@ void generateMeshes() {
  
  // ****************************************************************************************************************************** INTERRUPTS
 Boolean pressed=false;
-void mousePressed() {pressed=true; }
+void mousePressed() {pressed=true; 
+  if(keyPressed&&key=='i'){
+    if(edit){
+      sCurve.pickPointForInsertion(new pt(pmouseX,pmouseY,0));
+      sCurve.makeConvex();
+      s.readyToDraw(sCurve);
+    }
+    else if(edit1){
+      s1Curve.pickPointForInsertion(new pt(pmouseX,pmouseY,0));
+      s1.readyToDraw(s1Curve);
+    }
+    else if(edit2){
+      s2Curve.pickPointForInsertion(new pt(pmouseX,pmouseY,0));
+      s2.readyToDraw(s2Curve);
+    }
+    else if(edit3){
+      s3Curve.pickPointForInsertion(new pt(pmouseX,pmouseY,0));
+      s3.readyToDraw(s3Curve);
+    }
+}
+if(keyPressed&&(key=='d')){
+  if(edit){
+    sCurve.pickPoint(new pt(pmouseX,pmouseY,0));
+   if(sCurve.p!=-1&&sCurve.p!=sCurve.pts.size()-1&&sCurve.p!=0){
+     sCurve.pts.remove(sCurve.p);
+     s.readyToDraw(sCurve);
+   }
+  }
+   else if(edit1){
+    s1Curve.pickPoint(new pt(pmouseX,pmouseY,0));
+     if(s1Curve.p!=-1&&s1Curve.p!=s1Curve.pts.size()-1&&s1Curve.p!=0){
+       s1Curve.pts.remove(s1Curve.p);
+       s1.readyToDraw(s1Curve);
+     } 
+  }
+  else if(edit2){
+    s2Curve.pickPoint(new pt(pmouseX,pmouseY,0));
+     if(s2Curve.p!=-1&&s2Curve.p!=s2Curve.pts.size()-1&&s2Curve.p!=0){
+       s2Curve.pts.remove(s2Curve.p);
+       s2.readyToDraw(s2Curve);
+     } 
+  }//end of else if
+  else if(edit3){
+    s3Curve.pickPoint(new pt(pmouseX,pmouseY,0));
+     if(s3Curve.p!=-1&&s2Curve.p!=s3Curve.pts.size()-1&&s3Curve.p!=0){
+       s3Curve.pts.remove(s3Curve.p);
+       s3.readyToDraw(s3Curve);
+     } 
+  }//end of else if
+}
+}
 void mouseDragged() {
    if(keyPressed&&key=='a'){
      if(edit&&sCurve.p!=-1){
@@ -295,101 +342,115 @@ void mouseDragged() {
      }
   if(keyPressed&&key=='o'){
      Solid localSolid;
+     float angle=0.0;
     if(edit){
-      println("Solid: "+s);
      localSolid=s.toLocalSolid(s.I,s.J,s.K,s.origin);
-     if(mouseX-pmouseX<0){
-         s.decrementIX();
-      }
-     else if(mouseX-pmouseX>0){
-       s.incrementIX(); 
+     if(pmouseX>360){
+      angle=(pmouseX%360)*.001;
+      s.I=s.I.rotate(angle,s.I,s.J); 
      }
-     if(mouseY-pmouseY>0){
-       s.incrementIY();
-     }
-     else if(mouseY-pmouseY<0){
-      s.decrementIY(); 
-     }
+     else
+       s.I=s.I.rotate(pmouseX*.001,s.I,s.J);
      s.I.normalize();
      s.J=N(s.K,s.I).normalize();
      s.copyPts(localSolid.toGlobalSolid(s.I,s.J,s.K,s.origin));
     }
     else if(edit1){
      localSolid=s1.toLocalSolid(s1.I,s1.J,s1.K,s1.origin);
-     if(mouseX-pmouseX<0){
-         s1.decrementIX();
-      }
-     else if(mouseX-pmouseX>0){
-       s1.incrementIX(); 
+     if(pmouseX>360){
+      angle=(pmouseX%360)*.001;
+      s1.I=s1.I.rotate(angle,s1.I,s1.J); 
      }
-     if(mouseY-pmouseY>0){
-       s1.incrementIY();
-     }
-     else if(mouseY-pmouseY<0){
-      s1.decrementIY(); 
-     }
+     else
+       s1.I=s1.I.rotate(pmouseX*.001,s1.I,s1.J);
      s1.I.normalize();
      s1.J=N(s1.K,s1.I).normalize();
      s1.copyPts(localSolid.toGlobalSolid(s1.I,s1.J,s1.K,s1.origin));
     }
     else if(edit2){
      localSolid=s2.toLocalSolid(s2.I,s2.J,s2.K,s2.origin);
-     if(mouseX-pmouseX<0){
-         s2.decrementIX();
-      }
-     else if(mouseX-pmouseX>0){
-       s2.incrementIX(); 
+     if(pmouseX>360){
+      angle=(pmouseX%360)*.001;
+      s2.I=s2.I.rotate(angle,s2.I,s2.J); 
      }
-     if(mouseY-pmouseY>0){
-       s2.incrementIY();
-     }
-     else if(mouseY-pmouseY<0){
-      s2.decrementIY(); 
-     }
+     else
+       s2.I=s2.I.rotate(pmouseX*.001,s2.I,s2.J);
      s2.I.normalize();
      s2.J=N(s2.K,s2.I).normalize();
      s2.copyPts(localSolid.toGlobalSolid(s2.I,s2.J,s2.K,s2.origin));
     }
     else if(edit3){
      localSolid=s3.toLocalSolid(s3.I,s3.J,s3.K,s3.origin);
-     if(mouseX-pmouseX<0){
-         s3.decrementIX();
-      }
-     else if(mouseX-pmouseX>0){
-       s3.incrementIX(); 
+      if(pmouseX>360){
+      angle=(pmouseX%360)*.001;
+      s3.I=s3.I.rotate(angle,s3.I,s3.J); 
      }
-     if(mouseY-pmouseY>0){
-       s3.incrementIY();
-     }
-     else if(mouseY-pmouseY<0){
-      s3.decrementIY(); 
-     }
+     else
+       s3.I=s3.I.rotate(pmouseX*.001,s3.I,s3.J);
      s3.I.normalize();
      s3.J=N(s3.K,s3.I).normalize();
      s3.copyPts(localSolid.toGlobalSolid(s3.I,s3.J,s3.K,s3.origin));
     }
+    generateMeshes();
   }  
   if(keyPressed&&key=='p'){
          Solid localSolid;
+      float angle=0.0;
     if(edit){
-     println("Solid: "+s);
      localSolid=s.toLocalSolid(s.I,s.J,s.K,s.origin);
-     if(mouseX-pmouseX<0){
-         s.decrementJY();
-      }
-     else if(mouseX-pmouseX>0){
-       s.incrementJY(); 
+     if(pmouseX>360){
+       angle=(pmouseX%360)*.001;
+       s.J=s.J.rotate(angle,s.J,s.K); 
      }
-     if(mouseY-pmouseY>0){
-       s.incrementJZ();
-     }
-     else if(mouseY-pmouseY<0){
-      s.decrementJZ(); 
-     }
+     else
+       s.J=s.J.rotate(pmouseX*.001,s.J,s.K);
      s.J.normalize();
      s.K=N(s.I,s.J).normalize();
      s.copyPts(localSolid.toGlobalSolid(s.I,s.J,s.K,s.origin));
     }
+    else if(edit1){
+  
+         angle=0.0;
+     localSolid=s1.toLocalSolid(s1.I,s1.J,s1.K,s1.origin);
+     if(pmouseX>360){
+       angle=(pmouseX%360)*.001;
+       s1.J=s1.J.rotate(angle,s1.J,s1.K); 
+     }
+     else
+       s1.J=s1.J.rotate(pmouseX*.001,s1.J,s1.K);
+     s1.J.normalize();
+     s1.K=N(s1.I,s1.J).normalize();
+     s1.copyPts(localSolid.toGlobalSolid(s1.I,s1.J,s1.K,s1.origin));
+    }
+    else if(edit2){
+
+         angle=0.0;
+     localSolid=s2.toLocalSolid(s2.I,s2.J,s2.K,s2.origin);
+     if(pmouseX>360){
+       angle=(pmouseX%360)*.001;
+       s2.J=s2.J.rotate(angle,s2.J,s2.K); 
+     }
+     else
+       s2.J=s2.J.rotate(pmouseX*.001,s2.J,s2.K);
+     s2.J.normalize();
+     s2.K=N(s2.I,s2.J).normalize();
+     s2.copyPts(localSolid.toGlobalSolid(s2.I,s2.J,s2.K,s2.origin));
+    }
+    else if(edit3){
+         angle=0.0;
+     localSolid=s3.toLocalSolid(s3.I,s3.J,s3.K,s3.origin);
+     if(pmouseX>360){
+       angle=(pmouseX%360)*.001;
+       s3.J=s3.J.rotate(angle,s3.J,s3.K); 
+     }
+     else
+       s3.J=s3.J.rotate(pmouseX*.001,s3.J,s3.K);
+     s3.J.normalize();
+     s3.K=N(s3.I,s3.J).normalize();
+     s3.copyPts(localSolid.toGlobalSolid(s3.I,s3.J,s3.K,s3.origin));
+      
+    }
+    generateMeshes();
   }
      // move selected vertex of curve C in screen plane
   if(keyPressed&&key=='b') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
@@ -438,15 +499,19 @@ void keyPressed() {
     if(edit){
       sCurve = sCurve.subdivision();
       s.readyToDraw(sCurve);
+      regenerateMeshes();
     }else if(edit1){
       s1Curve = s1Curve.subdivision();
       s1.readyToDraw(s1Curve);
+       regenerateMeshes();
     }else if(edit2){
       s2Curve = s2Curve.subdivision();
       s2.readyToDraw(s2Curve);
+       regenerateMeshes();
     }else if(edit3){
       s3Curve = s3Curve.subdivision();
       s3.readyToDraw(s3Curve);
+       regenerateMeshes();
     }
   } //subdivide currently selected control curve
   if(key=='t') {showTube=!showTube;}
