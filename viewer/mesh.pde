@@ -129,10 +129,10 @@ void drawMorph(float t) {
         fill(blue);
         noStroke();
         beginShape();
-          vertex(P(A.X,t,B.X));
-          vertex(P(A.X,t,B.Y));
-          vertex(P(A.Y,t,B.X));
           vertex(P(A.Y,t,B.Y));
+          vertex(P(A.X,t,B.Y));
+          vertex(P(A.X,t,B.X));
+          vertex(P(A.Y,t,B.X));
         endShape();
       }
   }
