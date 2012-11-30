@@ -21,7 +21,8 @@ Boolean
   filterFrenetNormal=true,
   showTwistFreeNormal=false, 
   showHelpText=false;
-  Boolean drawRotate,edit,edit1,edit2,edit3;
+  
+  Boolean drawRotate,edit,edit1,edit2,edit3,animate;
 Curve polygon,controlPoints,temp, tempCurve;
 Curve editCurve;
 Solid editSolid;
@@ -59,7 +60,9 @@ int counter;
 Solid testSolid;
 Curve sCurve, s1Curve,s2Curve,s3Curve;
 
-
+//Nevilles Morph points
+pt t1A,t1B,t1C,t2A,t2B,t2C;
+pt p;
 // *******************************************************************************************************************    SETUP
 void setup() {
   size(800, 800, OPENGL);  
@@ -72,7 +75,7 @@ void setup() {
   initView(); // declares the local frames for 3D GUI
   sCurve=new Curve();
   sCurve.loadPts();
- 
+ animate=true;
   matrix=new RotateMatrix();
   temp=new Curve();
   drawRotate=false;
@@ -119,6 +122,11 @@ void setup() {
    edit1=false;
    edit2=false;
    edit3=false;
+   p=new pt(0,0,0);
+   t1A= new pt(-100,-100,-100);
+   t1B= new pt(-150,-150,-150);
+   t1C= new pt(-200,-200,-200);
+   t2A= new pt(200,200,200);
   // ***************** Set view  
 }
 // ******************************************************************************************************************* DRAW      
@@ -157,15 +165,15 @@ void draw() {
   //s1.draw();
   //s2.draw();
   //s3.draw(); 
-
+  
   M.drawMorph(time);
-
   if(time>=1.0)
     deltaT=-.01;
   else if(time<=0)
     deltaT=.01;
-  time+=deltaT;
-
+  if(animate){
+    time+=deltaT;
+ }
 // -------------------------- display and edit control points of the spines and box ----------------------------------   
     if(pressed) {
          if (keyPressed&&(key=='a')) {//Picks a point on the polygon
@@ -238,7 +246,6 @@ void generateMeshes() {
  
  void regenerateMeshes() {
     generateMeshes();
-
     M.remap(0);
     //M.map(1, M2);
     //M.map(2, M3);
@@ -351,9 +358,9 @@ void mouseDragged() {
      }
      else
        s.I=s.I.rotate(pmouseX*.001,s.I,s.J);
-     s.I.normalize();
-     s.J=N(s.K,s.I).normalize();
-     s.copyPts(localSolid.toGlobalSolid(s.I,s.J,s.K,s.origin));
+       s.I.normalize();
+       s.J=N(s.K,s.I).normalize();
+       s.copyPts(localSolid.toGlobalSolid(s.I,s.J,s.K,s.origin));
     }
     else if(edit1){
      localSolid=s1.toLocalSolid(s1.I,s1.J,s1.K,s1.origin);
@@ -473,7 +480,9 @@ void keyReleased() {
 
  
 void keyPressed() {
-  if(key=='a') {} // drag curve control point in xz (mouseDragged)
+  if(key=='a') {
+  animate=!animate;
+  } // drag curve control point in xz (mouseDragged)
   if(key=='b') {
   }  // move S2 in XZ
   if(key=='c') {} // load curve
@@ -483,7 +492,12 @@ void keyPressed() {
   } 
   if(key=='e') {}
   if(key=='f') {}
-  if(key=='g') {} // change global twist w (mouseDrag)
+  if(key=='g') {
+    M.flatShading=!M.flatShading;
+    M1.flatShading=!M1.flatShading;
+    M2.flatShading=!M2.flatShading;
+    M3.flatShading=!M3.flatShading;
+  } // toggle between flat and gourad shading
   if(key=='h') {} // hide picked vertex (mousePressed)
   if(key=='i') {}
   if(key=='j') {}
@@ -514,7 +528,10 @@ void keyPressed() {
        regenerateMeshes();
     }
   } //subdivide currently selected control curve
-  if(key=='t') {showTube=!showTube;}
+  if(key=='t') {
+    if(!animate)
+    time+=deltaT;
+  }
   if(key=='u') {}
   if(key=='v') {} // move S2
   if(key=='w') {}
@@ -578,10 +595,7 @@ void keyPressed() {
   if(key=='(') {}
   if(key==')') {showSilhouette=!showSilhouette;}
   if(key=='_') {
-    M.flatShading=!M.flatShading;
-    M1.flatShading=!M1.flatShading;
-    M2.flatShading=!M2.flatShading;
-    M3.flatShading=!M3.flatShading;
+ 
   }
   if(key=='+') {M.flip();} // flip edge of M
   if(key=='-') {M.showEdges=!M.showEdges;}

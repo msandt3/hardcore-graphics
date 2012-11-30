@@ -91,22 +91,27 @@ void map(int id, Mesh m) {
 void remap(int id) {
   mappings[id].remap();
 }
-
+void setTangentsOfEdge(Edge e){
+   e.tan1= N(V(e),Nt[e.triangles.get(0)]);
+   e.tan2= N(V(e),Nt[e.triangles.get(1)]);
+ 
+} 
 void drawMorph(float t) {
   MeshMap map = mappings[0];
-  for (int i = 0; i < nt; i++) { // go through triangles first
+ for (int i = 0; i < nt; i++) { // go through triangles first
     List<pt> vertices = map.F2V.get(i);
-    for (pt morphTo : vertices) {
-      fill(green);
-      noStroke();
-      beginShape();
-        vertex(P(G[V[3 * i + 0]],t,morphTo));
-        vertex(P(G[V[3 * i + 1]],t,morphTo));
-        vertex(P(G[V[3 * i + 2]],t,morphTo));
-      endShape();
+   for (pt morphTo : vertices) {
+     fill(green);
+     noStroke();
+     beginShape();
+       vertex(P(G[V[3 * i + 0]],t,morphTo));
+       vertex(P(G[V[3 * i + 1]],t,morphTo));
+       vertex(P(G[V[3 * i + 2]],t,morphTo));
+     endShape();
     }
   }
 //println(nv);
+
   for (int i = 0; i < nc; i++) {
     List<Integer> triangles = map.V2F.get(i);
     //if (triangles.size() > 0) println("i: " + i);
@@ -115,10 +120,11 @@ void drawMorph(float t) {
       //println("triangle: " + triangle);
       fill(red);
       noStroke();
+      
       beginShape();
-        vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 0))));
-        vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 1))));
-        vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 2))));
+      vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 0))));
+      vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 1))));
+      vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 2))));
       endShape();
     }
   }
@@ -126,19 +132,29 @@ void drawMorph(float t) {
       Edge A = entry.getKey();
       List<Edge> edges = entry.getValue();
       for (Edge B : edges) {
+        stroke(black);
+        //B.drawTangents();
+        
+      
+        if( shouldDraw(map.A,A,map.B,B,P(A.Y,t,B.Y),P(A.X,t,B.Y),P(A.X,t,B.X),P(A.Y,t,B.X))){
+          
+          //noFill();
         fill(blue);
         noStroke();
-        beginShape();
+       beginShape();
           vertex(P(A.Y,t,B.Y));
           vertex(P(A.X,t,B.Y));
           vertex(P(A.X,t,B.X));
           vertex(P(A.Y,t,B.X));
         endShape();
       }
+     }
+     
   }
 
 }
 
+      
 //  ==================================== OFFSETS ====================================
  void offset() {
    normals();
@@ -615,7 +631,7 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
     return a;
     }
   
-  void showMBEs() {for (int c=0; c<nc; c++) if (b(c) && !NME[c]) drawEdge(c); }        // draws all manifold border edges 
+  void showMBEs() {for (int c=0; c<nc; c++) if (b(c) && !NME[c]) drawEdge(c);  }        // draws all manifold border edges 
   void showNMBEs() {for (int c=0; c<nc; c++) if (b(c) && NME[c]) drawEdge(c); }        // draws all non-manifold border edges 
   void showNMNBEs() {for (int c=0; c<nc; c++) if(!b(c) && NME[c]) drawEdge(c);}         // draws all non-manifold non border edges   
 
@@ -655,7 +671,9 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
 // ============================================= DISPLAY EDGES =======================================
   void showBorder() {for (int c=0; c<nc; c++) {if (b(c) && visible[t(c)] && !NME[c]) {drawEdge(c);}; }; };         // draws all manifold border edges 
   void showEdges () {for(int c=0; c<nc; c++) drawEdge(c); };  
-  void drawEdge(int c) {show(g(p(c)),g(n(c))); };  // draws edge of t(c) opposite to corner c
+  void drawEdge(int c) {show(g(p(c)),g(n(c))); 
+
+};  // draws edge of t(c) opposite to corner c
   void drawSilhouettes() {for (int c=0; c<nc; c++) if (c<o(c) && frontFacing(t(c))!=frontFacing(t(o(c)))) drawEdge(c); }  
 
 // ============================================= DISPLAY TRIANGLES =======================================
@@ -681,7 +699,6 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
   void showFrontTrianglesSimple() {for(int t=0; t<nt; t++) if(frontFacing(t)) {if(showEdges) showShrunkT(t,1); else shade(t);}};  
   void showFront() {for(int t=0; t<nt; t++) if(frontFacing(t)) shade(t);}  
   void showTs() {for(int t=0; t<nt; t++) simpleShade(t);}  
- 
   void showBackTriangles() {for(int t=0; t<nt; t++) if(!frontFacing(t)) shade(t);};  
   void showAllTriangles() {for(int t=0; t<nt; t++) if(showEdges) showShrunkT(t,r); else shade(t);};  
   void showMarkedTriangles() {for(int t=0; t<nt; t++) if(visible[t]&&Mt[t]!=0) {fill(ramp(Mt[t],rings)); showShrunkOffsetT(t,r,r/2); }};  
@@ -979,10 +996,7 @@ Mesh loadMeshVTS(String fn) {
     c=n(o(c));
     while(tm[t(o(c))]!=mk) c=n(o(n(c)));
     return c;
-    }  
-    
-
-     
+    }       
   } // ==== END OF MESH CLASS
   
 vec labelD=new vec(-4,+4, 12);           // offset vector for drawing labels  

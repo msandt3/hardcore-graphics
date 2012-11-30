@@ -91,6 +91,5 @@
      stroke(black);
      v=V(100.0,v);
      show(p,v);
-     
    }
 }

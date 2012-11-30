@@ -75,6 +75,15 @@ class pt { float x=0,y=0,z=0;
     String ret= x+", "+y+", "+z;
      return ret; 
   }
+    void drawPt(){
+      pushMatrix();
+      noStroke();
+      fill(red);
+      translate(this.x,this.y,this.z); 
+      sphereDetail(15,15);
+      sphere(10);
+      popMatrix();
+   } 
   pt toLocalPt(vec I, vec J, vec K, pt O){//Returns a 
   float x=d(V(O,this),I);
   float y=d(V(O,this),J);
@@ -263,5 +272,23 @@ class fourDPoint{
     temp += this.x+","+this.y+","+this.z+","+this.last;
     return temp;
   }
+}
+boolean shouldDraw(Mesh n, Edge e, Mesh m,Edge f,pt a, pt b, pt c, pt d){
+      vec quadNormal= N(V(a,b),V(a,c));//Find the normal of the traveling quad 
+     //stroke(black);
+     //show(a,V(100,quadNormal));
+     // println(quadNormal);
+      m.setTangentsOfEdge(e);
+      n.setTangentsOfEdge(f);
+ 
+      if(d(quadNormal,e.tan1)>0){
+        if(d(quadNormal,e.tan2)>0&&d(quadNormal,f.tan1)>0&&d(quadNormal,f.tan2)>0)
+          return true; 
+      }
+      else{
+        if(d(quadNormal,e.tan2)<0&&d(quadNormal,f.tan1)<0&&d(quadNormal,f.tan2)<0)
+          return true;
+      }
+      return false;        	
 }
 
