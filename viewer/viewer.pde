@@ -27,6 +27,7 @@ Curve editCurve;
 Solid editSolid;
 RotateMatrix matrix;
 Solid s,s1,s2,s3;
+Solid ls, ls1, ls2, ls3;
 int numRotations;
  Test test;
   float time = 0.0,
@@ -42,10 +43,9 @@ void initView() {Q=P(0,0,0); I=V(1,0,0); J=V(0,1,0); K=V(0,0,1); F = P(0,0,0); E
 Mesh M=new Mesh(),
      M1=new Mesh(),
      M2=new Mesh(),
-     M3=new Mesh(),
-     Morph=new Mesh(),
-     Morph1 = new Mesh(),
-     Morph2 = new Mesh(); // meshes for models M0 and M1
+     M3=new Mesh(); // meshes for models M0 and M1
+
+List<List<MeshMap>> maps = new ArrayList<List<MeshMap>>();
 
 float volume1=0, volume0=0;
 float sampleDistance=1;
@@ -196,17 +196,22 @@ void draw() {
      // -------------------------------------------------------- show mesh ----------------------------------   
    if(showMesh) { 
     fill(yellow); noStroke();
-    M.draw(time, M1);
-    M.drawEdges();
-    M1.drawEdges();
+    //M.draw(time, M1, maps.get(0).get(0));
+    M.draw();
+    M1.draw();
+    M2.draw();
+    M3.draw();
     //M1.drawDummy(time, M2);
-    M2.drawEdges();
+    //M2.drawEdges();
     //M2.drawDummy(time, M3);
-    M3.drawEdges();
+    //M3.drawEdges();
+
+    noStroke();
+    nevilleMorph(M, M1, M2, M3, time, maps);
 
     //Morph = new Mesh(M1, M1, time);
     //Morph = Neville(M, M1, M2, time);
-    noStroke();
+    
     /*Morph = new Mesh(M, time, M1);
     Morph.draw();
 
@@ -262,19 +267,46 @@ void generateMeshes() {
     M1.makeRevolution(s1);
     M2.makeRevolution(s2);
     M3.makeRevolution(s3);
+
+    maps = new LinkedList<List<MeshMap>>();
+
+    Deque<Mesh> in = new LinkedList<Mesh>();
+    Queue<Mesh> out = new LinkedList<Mesh>();
+    Deque<Integer> inIndex = new LinkedList<Integer>();
+    Queue<Integer> outIndex = new LinkedList<Integer>();
+    in.addLast(M);
+    in.addLast(M1);
+    in.addLast(M2);
+    in.addLast(M3);
+    inIndex.add(0);
+    inIndex.add(1);
+    inIndex.add(2);
+    inIndex.add(3);
+
+    int run = 0;
+    while (run < 4) {
+        Mesh current = in.removeFirst();
+        out.clear();
+        out.addAll(in);
+        int currentX = inIndex.removeFirst();
+        outIndex.clear();
+        outIndex.addAll(inIndex);
+
+        maps.add(new LinkedList<MeshMap>());
+        for (int i = 0; i < 3; i++) {
+            Mesh next = out.remove();
+            MeshMap map = new MeshMap(current, next);
+            maps.get(run).add(map);
+        }
+
+        run++;
+        in.addLast(current); // done
+        inIndex.addLast(currentX);
+    }
 }
  
  void regenerateMeshes() {
     generateMeshes();
-
-    /*M2.map(M3);
-    M1.map(M2);
-    M1.map(M3);
-    M.map(M1);
-    M.map(M2);
-    M.map(M3);*/
-    
-    
  }
  
  // ****************************************************************************************************************************** INTERRUPTS
