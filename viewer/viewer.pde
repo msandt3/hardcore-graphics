@@ -21,7 +21,8 @@ Boolean
   filterFrenetNormal=true,
   showTwistFreeNormal=false, 
   showHelpText=false,
-  neville = false;
+  neville = false,
+  drawMorph = true;
   
   Boolean drawRotate,edit,edit1,edit2,edit3,animate;
 Curve polygon,controlPoints,temp, tempCurve;
@@ -208,11 +209,13 @@ void draw() {
     //M3.drawEdges();
 
     noStroke();
+    if (drawMorph) {
     if (neville) {
       nevilleMorph(M, M1, M2, M3, time, maps);
       } else {
         M.draw(time, M1, maps.get(0).get(0));
       }
+    }
 
     //Morph = new Mesh(M1, M1, time);
     //Morph = Neville(M, M1, M2, time);
@@ -406,7 +409,6 @@ void mouseDragged() {
        }
        s3.readyToDraw(s3Curve);
      }
-     regenerateMeshes();
   } 
   if(keyPressed&&key=='o'){
      Solid localSolid;
@@ -459,7 +461,6 @@ void mouseDragged() {
      s3.J=N(s3.K,s3.I).normalize();
      s3.copyPts(localSolid.toGlobalSolid(s3.I,s3.J,s3.K,s3.origin));
     }
-    generateMeshes();
   }  
   if(keyPressed&&key=='p'){
          Solid localSolid;
@@ -518,7 +519,6 @@ void mouseDragged() {
      s3.copyPts(localSolid.toGlobalSolid(s3.I,s3.J,s3.K,s3.origin));
       
     }
-    generateMeshes();
   }
  if(keyPressed&&key=='q'){
     Solid localSolid;
@@ -578,7 +578,9 @@ void keyPressed() {
   } // toggle between flat and gourad shading
   if(key=='h') {} // hide picked vertex (mousePressed)
   if(key=='i') {}
-  if(key=='j') {}
+  if(key=='j') {
+    drawMorph = !drawMorph;
+  }
   if(key=='k') {}
   if(key=='l') {}
   if(key=='m') {showMesh=!showMesh;}

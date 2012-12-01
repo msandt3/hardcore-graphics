@@ -6,7 +6,7 @@ void writeHelp () {fill(dblue);
     scribe("Control Curve: d: delet point at click",i++);
     scribe("Solid: ,: increase number of rotations, ,: decrease number of rotations",i++);
     scribe("Solid: p: rotate solid on it's I axis, o: rotate solid on K axis with mouse, q: spin solid on its J axis",i++);
-    scribe("Misc: a: stop animation, t: move timestep, g:Gouraud/flat, W: save solid data to file",i++);
+    scribe("Misc: a: stop animation, d: neville/single, t: move timestep, g:Gouraud/flat, W: save solid data to file",i++);
     scribe("",i++);
 
    }
