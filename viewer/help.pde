@@ -1,10 +1,12 @@
 void writeHelp () {fill(dblue);
     int i=0;
-    scribe("3D VIEWER 2012 (Brian Edmonds)",i++);
-    scribe("CURVE t:show, s:move XY, a:move XZ , v:move all XY, b:move all XZ, A;archive, C.load",i++);
-    scribe("MESH L:load, .:pick corner, Y:subdivide, E:smoothen, W:write, N:next, S.swing ",i++);
-    scribe("VIEW space:pick focus, [:reset, ;:on mouse, E:save, e:restore ",i++);
-    scribe("SHOW ):silhouette, B:backfaces, |:normals, -:edges, c:curvature, g:Gouraud/flat, =:translucent",i++);
+    scribe("CONTROLS: ",i++);
+    scribe("Edit Solid by pressing 1,2,3,4 for the respective solid ",i++);
+    scribe("Control Curve: e: pick and drag points, i: insert point at click, C: make convex, s: subdivide ",i++);
+    scribe("Control Curve: d: delet point at click",i++);
+    scribe("Solid: ,: increase number of rotations, ,: decrease number of rotations",i++);
+    scribe("Solid: p: rotate solid on it's I axis, o: rotate solid on K axis with mouse, q: spin solid on its J axis",i++);
+    scribe("Misc: a: stop animation, t: move timestep, g:Gouraud/flat, W: save solid data to file",i++);
     scribe("",i++);
 
    }

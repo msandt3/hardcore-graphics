@@ -130,4 +130,4 @@ class MeshMap {
         }
         return true;
     }
-};
+}
