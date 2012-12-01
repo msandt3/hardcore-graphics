@@ -43,7 +43,9 @@ Mesh M=new Mesh(),
      M1=new Mesh(),
      M2=new Mesh(),
      M3=new Mesh(),
-     Mnew=new Mesh(); // meshes for models M0 and M1
+     Morph=new Mesh(),
+     Morph1 = new Mesh(),
+     Morph2 = new Mesh(); // meshes for models M0 and M1
 
 float volume1=0, volume0=0;
 float sampleDistance=1;
@@ -194,15 +196,25 @@ void draw() {
      // -------------------------------------------------------- show mesh ----------------------------------   
    if(showMesh) { 
     fill(yellow); noStroke();
-    Mnew = new Mesh(M, M1, time);
-    Mnew.draw();
-    //M.drawDummy(time, M1);
+    M.draw(time, M1);
     M.drawEdges();
     M1.drawEdges();
     //M1.drawDummy(time, M2);
     M2.drawEdges();
     //M2.drawDummy(time, M3);
     M3.drawEdges();
+
+    //Morph = new Mesh(M1, M1, time);
+    //Morph = Neville(M, M1, M2, time);
+    noStroke();
+    /*Morph = new Mesh(M, time, M1);
+    Morph.draw();
+
+    Morph1 = new Mesh(M1, time, M2);
+    Morph1.draw();
+
+    Morph2 = new Mesh(M2, time, M3);
+    Morph2.draw();*/
     //M1.draw();
     //M1.showFront();
     //M2.showFront();

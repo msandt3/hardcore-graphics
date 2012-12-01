@@ -115,7 +115,7 @@ class MeshMap {
         for (int i = 0; i < m1.edgeTriangles.size(); i++) {
             for (int j = 0; j < m2.edges.size(); j++) {
                 EdgePoints e1 = m1.makeEdge(m1.edges.get(i));
-                EdgePoints e2 = m2.makeEdge(m2.edges.get(i));
+                EdgePoints e2 = m2.makeEdge(m2.edges.get(j));
                 vec normal = N(V(e1), V(e2));
 
             }

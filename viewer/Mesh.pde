@@ -12,19 +12,21 @@ class Mesh {
         empty();
     }
 
-    Mesh(Mesh m1, Mesh m2, float time) {
+    Mesh(Mesh m1, float time, Mesh m2) {
         empty();
 
         MeshMap map = new MeshMap(m1, m2);
-        for (int i = 0; i < m1.nt(); i++) {
-            List<Integer> vertices = map.F2V.get(i);
-            for (Integer morphV : vertices) {
-                pt morphTo = m2.g(morphV);
-                this.addTriangle(
-                    P(m1.g(3 * i + 0), time, morphTo),
-                    P(m1.g(3 * i + 1), time, morphTo),
-                    P(m1.g(3 * i + 2), time, morphTo)
-                );
+        if (time < 1) {
+            for (int i = 0; i < m1.nt(); i++) {
+                List<Integer> vertices = map.F2V.get(i);
+                for (Integer morphV : vertices) {
+                    pt morphTo = m2.g(morphV);
+                    this.addTriangle(
+                        P(m1.g(3 * i + 0), time, morphTo),
+                        P(m1.g(3 * i + 1), time, morphTo),
+                        P(m1.g(3 * i + 2), time, morphTo)
+                    );
+                }
             }
         }
 
@@ -55,6 +57,7 @@ class Mesh {
                 );
             }
         }*/
+        normals();
     }
 
     void empty() {
@@ -363,3 +366,19 @@ class Mesh {
         }
     }
 };
+
+Mesh Neville (Mesh A, Mesh B, Mesh C, float t) {
+    Mesh P = new Mesh(A,t,B);
+    Mesh Q = new Mesh(B,t-1,C);
+    return new Mesh(P,t/2,Q);
+}
+
+Mesh Neville (Mesh A, Mesh B, Mesh C, Mesh D, float t) {
+    Mesh PAB = new Mesh(A, t, B);
+    Mesh PBC = new Mesh(B, t-1, C);
+    Mesh PCD = new Mesh(C, t-2, D);
+    Mesh PABC = new Mesh(PAB, t/2, PBC);
+    Mesh PBCD = new Mesh(PBC, (t-1)/2, PCD);
+    Mesh PABCD = new Mesh(PABC, t/3, PBCD);
+    return PABCD;
+}
