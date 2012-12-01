@@ -107,9 +107,9 @@ void drawMorph(float t) {
     fill(green);
      noStroke();
      beginShape();
-       vertex(P(G[V[3 * i + 0]],t,morphTo));
-       vertex(P(G[V[3 * i + 1]],t,morphTo));
-       vertex(P(G[V[3 * i + 2]],t,morphTo));
+       vertex(P(G[V[3 * i + 0]].toLocalPt(I,J,K,new pt(0,0,0)),t,morphTo.toLocalPt(I,J,K,new pt(0,0,0))));
+       vertex(P(G[V[3 * i + 1]].toLocalPt(I,J,K,new pt(0,0,0)),t,morphTo.toLocalPt(I,J,K,new pt(0,0,0))));
+       vertex(P(G[V[3 * i + 2]].toLocalPt(I,J,K,new pt(0,0,0)),t,morphTo.toLocalPt(I,J,K,new pt(0,0,0))));
      endShape();
     }
   }
@@ -119,10 +119,11 @@ void drawMorph(float t) {
     for (Integer triangle : triangles) {
       fill(red);
       noStroke();
+      
       beginShape();
-      vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 0))));
-      vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 1))));
-      vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 2))));
+      vertex(P(G[V[i]].toLocalPt(I,J,K,new pt(0,0,0)),t,P(map.getBVertex(3 * triangle + 0)).toLocalPt(I,J,K,new pt(0,0,0))));
+      vertex(P(G[V[i]].toLocalPt(I,J,K,new pt(0,0,0)),t,P(map.getBVertex(3 * triangle + 1)).toLocalPt(I,J,K,new pt(0,0,0))));
+      vertex(P(G[V[i]].toLocalPt(I,J,K,new pt(0,0,0)),t,P(map.getBVertex(3 * triangle + 2)).toLocalPt(I,J,K,new pt(0,0,0))));
       endShape();
     }
   }
@@ -135,9 +136,9 @@ void drawMorph(float t) {
         fill(blue);
         noStroke();
        beginShape();
-          vertex(P(A.Y,t,B.Y));
-          vertex(P(A.X,t,B.Y));
-          vertex(P(A.X,t,B.X));
+          vertex(P(A.Y,t,B.Y).toLocalPt(I,J,K,new pt(0,0,0)));
+          vertex(P(A.X,t,B.Y).toLocalPt(I,J,K,new pt(0,0,0)));
+          vertex(P(A.X,t,B.X).toLocalPt(I,J,K,new pt(0,0,0)));
           vertex(P(A.Y,t,B.X));
         endShape();
      }

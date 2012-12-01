@@ -27,7 +27,7 @@ Curve polygon,controlPoints,temp, tempCurve;
 Curve editCurve;
 Solid editSolid;
 RotateMatrix matrix;
-Solid s,s1,s2,s3;
+Solid s,s1,s2,s3,ls,ls1,ls2,ls3;
 int numRotations;
  Test test;
   float time = 0.0,
@@ -59,7 +59,7 @@ ArrayList<Curve> orientationTest;
 int counter;
 Solid testSolid;
 Curve sCurve, s1Curve,s2Curve,s3Curve;
-Solid sLocal,s1Local;
+
 //Nevilles Morph points
 
 // *******************************************************************************************************************    SETUP
@@ -82,7 +82,7 @@ void setup() {
   s.k=5;
   s.setOrigin(new pt(-500,200,0));
   s.readyToDraw(sCurve);
-  sLocal=s.toLocalSolid();
+  ls=s.toLocalSolid();
   //O =s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
   //println("SCURVE1: "+sCurve);
    mainView=true;
@@ -93,7 +93,7 @@ void setup() {
    s1.setOrigin(new pt(-250,-400,0));
    s1.k=4;
    s1.readyToDraw(s1Curve);
-   s1Local=s1.toLocalSolid();
+   ls1=s1.toLocalSolid();
    //s1.readyToDraw(s1Curve);
    
    s2Curve=new Curve();
@@ -102,13 +102,15 @@ void setup() {
    s2.setOrigin(new pt(100,-400,0));
    s2.k=6;
    s2.readyToDraw(s2Curve);
-
+  // ls2=ls2.toLocalSolid();
+   
    s3Curve=new Curve();
    s3Curve.loadPts("data/P3.pts");
    s3=new Solid(s3Curve);
    s3.setOrigin(new pt(400,200,0));
    s3.k=8;
    s3.readyToDraw(s3Curve);
+   //ls3=ls3.toLocalSolid();
 
   M.declareVectors();
   M1.declareVectors();
@@ -123,7 +125,7 @@ void setup() {
    edit1=false;
    edit2=false;
    edit3=false;
-   p=new pt(0,0,0);
+  
  
   // ***************** Set view  
 }
