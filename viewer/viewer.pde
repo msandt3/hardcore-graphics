@@ -59,7 +59,7 @@ ArrayList<Curve> orientationTest;
 int counter;
 Solid testSolid;
 Curve sCurve, s1Curve,s2Curve,s3Curve;
-
+Solid sLocal,s1Local;
 //Nevilles Morph points
 pt t1A,t1B,t1C,t2A,t2B,t2C;
 pt p;
@@ -83,7 +83,8 @@ void setup() {
   s.k=5;
   s.setOrigin(new pt(-500,200,0));
   s.readyToDraw(sCurve);
-  O =s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
+  sLocal=s.toLocalSolid();
+  //O =s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
   //println("SCURVE1: "+sCurve);
    mainView=true;
    //Create solids
@@ -93,8 +94,9 @@ void setup() {
    s1.setOrigin(new pt(-250,-400,0));
    s1.k=4;
    s1.readyToDraw(s1Curve);
+   s1Local=s1.toLocalSolid();
+   //s1.readyToDraw(s1Curve);
    
- 
    s2Curve=new Curve();
    s2Curve.loadPts("data/P2.pts");
    s2=new Solid(s2Curve);
@@ -123,10 +125,7 @@ void setup() {
    edit2=false;
    edit3=false;
    p=new pt(0,0,0);
-   t1A= new pt(-100,-100,-100);
-   t1B= new pt(-150,-150,-150);
-   t1C= new pt(-200,-200,-200);
-   t2A= new pt(200,200,200);
+ 
   // ***************** Set view  
 }
 // ******************************************************************************************************************* DRAW      
@@ -302,6 +301,7 @@ if(keyPressed&&(key=='d')){
        s3.readyToDraw(s3Curve);
      } 
   }//end of else if
+  regenerateMeshes();
 }
 }
 void mouseDragged() {
@@ -614,36 +614,44 @@ void keyPressed() {
       if(edit){
         s.k++;
         s.readyToDraw(sCurve);
+        regenerateMeshes();
       }
       else if(edit1){
         s1.k++;
         s1.readyToDraw(s1Curve);
-      }
+      regenerateMeshes();  
+    }
       else if(edit2){
         s2.k++;
         s2.readyToDraw(s2Curve);
+        regenerateMeshes();
       }
       else if(edit3){
         s3.k++;
         s3.readyToDraw(s3Curve);
+        regenerateMeshes();
       }
   } // pick corner
   if(key==',') {
     if(edit&&s.k>2){
         s.k--;
         s.readyToDraw(sCurve);
+         regenerateMeshes();
       }
       else if(edit1&&s1.k>2){
         s1.k--;
         s1.readyToDraw(s1Curve);
+         regenerateMeshes();
       }
       else if(edit2&&s2.k>2){
         s2.k--;
         s2.readyToDraw(s2Curve);
+         regenerateMeshes();
       }
       else if(edit3&&s3.k>2){
         s3.k--;
         s3.readyToDraw(s3Curve);
+         regenerateMeshes();
       }
   }
   if(key=='^') {} 

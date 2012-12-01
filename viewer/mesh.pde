@@ -92,16 +92,19 @@ void remap(int id) {
   mappings[id].remap();
 }
 void setTangentsOfEdge(Edge e){
+   
    e.tan1= N(V(e),Nt[e.triangles.get(0)]);
    e.tan2= N(V(e),Nt[e.triangles.get(1)]);
- 
+   //println("e: "+V(e));
+   //println("Triangle face:"+ Nt[e.triangles.get(0)]);
+   //println("e.tan1: "+e.tan1);
 } 
 void drawMorph(float t) {
   MeshMap map = mappings[0];
  for (int i = 0; i < nt; i++) { // go through triangles first
     List<pt> vertices = map.F2V.get(i);
    for (pt morphTo : vertices) {
-     fill(green);
+    fill(green);
      noStroke();
      beginShape();
        vertex(P(G[V[3 * i + 0]],t,morphTo));
@@ -132,13 +135,10 @@ void drawMorph(float t) {
       Edge A = entry.getKey();
       List<Edge> edges = entry.getValue();
       for (Edge B : edges) {
-        stroke(black);
-        //B.drawTangents();
-        
-      
-        if( shouldDraw(map.A,A,map.B,B,P(A.Y,t,B.Y),P(A.X,t,B.Y),P(A.X,t,B.X),P(A.Y,t,B.X))){
-          
-          //noFill();
+       stroke(black); 
+     //  A.drawTangents();       
+     //  if(!shouldDraw(map.A,A,map.B,B,P(A.X,t,B.Y),P(A.X,t,B.X),P(A.Y,t,B.Y),P(A.Y,t,B.X))){  
+        noFill();
         fill(blue);
         noStroke();
        beginShape();
@@ -147,7 +147,17 @@ void drawMorph(float t) {
           vertex(P(A.X,t,B.X));
           vertex(P(A.Y,t,B.X));
         endShape();
-      }
+     // }
+   /*  else{
+        fill(red);
+        noStroke();
+       beginShape();
+          vertex(P(A.Y,t,B.Y));
+          vertex(P(A.X,t,B.Y));
+          vertex(P(A.X,t,B.X));
+          vertex(P(A.Y,t,B.X));
+        endShape();
+     }*/
      }
      
   }

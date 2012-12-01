@@ -9,7 +9,7 @@ void writeHelp () {fill(dblue);
 
    }
 void writeFooterHelp () {fill(dbrown);
-    scribeFooter("Brian Edmonds  Press ?:help",1);
+    scribeFooter("Brian Edmonds, Mike Sandt, Patrick Stoica Press ?:help",1);
   }
 void scribeHeader(String S) {text(S,10,20);} // writes on screen at line i
 void scribeHeaderRight(String S) {text(S,width-S.length()*15,20);} // writes on screen at line i

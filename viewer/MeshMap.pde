@@ -45,7 +45,6 @@ class MeshMap {
 					//println("i: " + i + " j: " + j);
 					//println("i: " + i + " j: " + j);
 					list.add(j);
-					//print(j);
 				}
 				V2F.put(i, list);
 			}
@@ -73,34 +72,25 @@ class MeshMap {
   	}
   	boolean shouldMap(Edge e1, Mesh m1, Edge e2, Mesh m2){
   		vec norm = getNormal(e1,e2);
-  		ArrayList<vec> e1tangents = getTangents(e1,m1);
+                setTangentsOfEdge(e1,m1);
+                setTangentsOfEdge(e2,m2);
+  		/*ArrayList<vec> e1tangents = getTangents(e1,m1);
   		ArrayList<vec> e2tangents = getTangents(e2,m2);
   		println("Number of tangents for edge 1 - "+e1tangents.size());
-  		println("Number of tangents for edge 2 - "+e2tangents.size());
+  		println("Number of tangents for edge 2 - "+e2tangents.size());*/
+  		//if ( (d(norm,e1.tan1) > 0)&&d(norm,e1.tan2)>0&&d(norm,e2.tan1)<0&&d(norm,e2.tan2)>0){
+  		  //  return true;
+  	        //}
+  		if ((d(norm,e1.tan1) < 0)&&d(norm,e1.tan2)<0&&d(norm,e2.tan1)<0&&d(norm,e2.tan2)<0){
+  		    return true;
+  		}
+                return false;
+  	}
 
-  		for (vec e1tangent : e1tangents){
-  			if ( d(norm,e1tangent) >= 0 ){
-  				println("Should not map edge - "+e1+" to edge "+e2);
-  				return false;
-  			}
-  		}
-  		for(vec e2tangent : e2tangents){
-  			if ( d(norm,e2tangent) >= 0){
-  				println("Should not map edge - "+e1+" to edge "+e2);
-  				return false;
-  			}
-  		}
-  		return true;
-  	}
-  	boolean shouldMap(Edge e, Mesh m){
-  		vec norm = getNormal(e,m);
-  		ArrayList<vec> tangents = getTangents(e,m);
-  		for (vec tangent : tangents){
-  			if( d(norm,tangent) > 0)
-  				return false;
-  		}
-  		return true;
-  	}
+        void setTangentsOfEdge(Edge e,Mesh m){
+           e.tan1= N(V(e),m.Nt[e.triangles.get(0)]);
+           e.tan2= N(V(e),m.Nt[e.triangles.get(1)]);
+        }
   	// =================== END E2E UTILITY FUNCTIONS =====================
 	void edgeToEdge() {
 		/*for (int i = 0; i < A.nv; i++) {
