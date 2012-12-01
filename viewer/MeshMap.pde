@@ -1,136 +1,133 @@
+class StartEnd {
+    int start;
+    int end;
+    StartEnd(int start, int end) {
+        this.start = start;
+        this.end = end;
+    }
+    public int hashCode() {
+        return 31 * start + 37 * end;
+    }
+};
+
 class MeshMap {
-	Mesh A;
-	Mesh B;
-	Map<Integer, List<Integer>> V2F;
-	Map<Integer, List<pt>> F2V;
-	Map<Edge, List<Edge>> E2E;
+    Mesh m1, m2;
+    Map<Integer, List<Integer>> V2F;
+    Map<Integer, List<Integer>> F2V;
+    Map<Integer, List<Integer>> E2E;
+    Set<StartEnd> startEnd;
 
-	MeshMap(Mesh A, Mesh B) {
-		this.A = A;
-		this.B = B;
-		V2F = new HashMap<Integer, List<Integer>>();
-		F2V = new HashMap<Integer, List<pt>>();
-		E2E = new HashMap<Edge, List<Edge>>();
-		faceToVertex();
-		vertexToFace();
-		edgeToEdge();
-	}
+    MeshMap(Mesh A, Mesh B) {
+        this.m1 = A;
+        this.m2 = B;
+        V2F = new HashMap<Integer, List<Integer>>();
+        F2V = new HashMap<Integer, List<Integer>>();
+        E2E = new HashMap<Integer, List<Integer>>();
+        startEnd = new HashSet<StartEnd>();
+        faceToVertex();
+        vertexToFace();
+        edgeToEdge();
+    }
 
-	void clear() {
-		A = null;
-		B = null;
-		V2F.clear();
-		F2V.clear();
-		E2E.clear();
-	}
+    void faceToVertex() {
+        for (int f = 0; f < m1.nt(); f++) {
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            for (int v = 0; v < m2.V.size(); v++) {
+                if (LSD(m1.Nt(f), m2, m2.v(v))) {
+                    /*for (int i = 0; i < 3; i++) {
+                        int start = 3*f+i;
+                        //StartEnd pair = new StartEnd(start, v);
+                        //if (!startEnd.contains(pair)) list.add(v);
 
-	void faceToVertex() {
-		for (int i = 0; i < A.nt; i++) {
-			ArrayList<pt> list = new ArrayList<pt>();
-			for (int j = 0; j < B.nc; j++) {
-				if (LSD(A.Nt[i], B, B.V[j])) {
-					list.add(B.G[B.V[j]]);
-				}
-			}
-			
-			F2V.put(i, list);
-		}
-	}
+                        //startEnd.add(pair);
 
-	void vertexToFace() {
-		for (int i = 0; i < A.nc; i++) {
-			ArrayList<Integer> list = new ArrayList<Integer>();
-			for (int j = 0; j < B.nt; j++) {
-				if (LSD(B.Nt[j], A, A.V[i])) {
-					//println("i: " + i + " j: " + j);
-					//println("i: " + i + " j: " + j);
-					list.add(j);
-				}
-				V2F.put(i, list);
-			}
-		}
-	}
-	// ==================== UTILITY FUNCTIONS FOR E2E MAPS ==================
-	//get the tangents for a particular edge e in mesh m
-	ArrayList<vec> getTangents(Edge e, Mesh m){
-    	ArrayList<vec> tangents = new ArrayList<vec>();
-    	for(int tri : e.triangles){
-      		tangents.add(getTangent(e,m.Nt[tri]));
-    	}
-    	return tangents;
-  	}
-  	//get the tangents for a particular edge triangleNorm combination
-  	vec getTangent(Edge e, vec faceNorm){
-    	return N(V(e),faceNorm);
-  	}
-  	//get the average of the triangle normals for an edge in mesh m
-  	vec getNormal(Edge e, Mesh m){
-    	return V(m.Nt[e.triangles.get(0)],m.Nt[e.triangles.get(1)]);
-  	}
-  	vec getNormal(Edge e1, Edge e2){
-  		return N(V(e1),V(e2));
-  	}
-  	boolean shouldMap(Edge e1, Mesh m1, Edge e2, Mesh m2){
-  		vec norm = getNormal(e1,e2);
-                setTangentsOfEdge(e1,m1);
-                setTangentsOfEdge(e2,m2);
-  		/*ArrayList<vec> e1tangents = getTangents(e1,m1);
-  		ArrayList<vec> e2tangents = getTangents(e2,m2);
-  		println("Number of tangents for edge 1 - "+e1tangents.size());
-  		println("Number of tangents for edge 2 - "+e2tangents.size());*/
-  		//if ( (d(norm,e1.tan1) > 0)&&d(norm,e1.tan2)>0&&d(norm,e2.tan1)<0&&d(norm,e2.tan2)>0){
-  		  //  return true;
-  	        //}
-  		if ((d(norm,e1.tan1) < 0)&&d(norm,e1.tan2)<0&&d(norm,e2.tan1)<0&&d(norm,e2.tan2)<0){
-  		    return true;
-  		}
-                return false;
-  	}
-
-        void setTangentsOfEdge(Edge e,Mesh m){
-           e.tan1= N(V(e),m.Nt[e.triangles.get(0)]);
-           e.tan2= N(V(e),m.Nt[e.triangles.get(1)]);
+                    }*/
+                    list.add(v);
+                }
+            }
+            
+            F2V.put(f, list);
         }
-  	// =================== END E2E UTILITY FUNCTIONS =====================
-	void edgeToEdge() {
-		/*for (int i = 0; i < A.nv; i++) {
-			ArrayList<vec> list = new ArrayList<vec>();
-			for (int j = i + 0; j < B.nv; j++) {
-				list.add(B.edgeMap.get(j));
-			}
+    }
 
-			E2E.put(i, list);
-		}*/
-		for (Edge e : A.edges) {
-			ArrayList<Edge> list = new ArrayList<Edge>();
-			for (Edge e2 : B.edges) {
-				println(e2.triangles.size());
-				//this is the check for positive dot products (not working)
-				//if(shouldMap(e,A,e2,B))
-					list.add(e2);
-			}
-			E2E.put(e, list);
-		}
-	}
+    void vertexToFace() {
+        for (int i = 0; i < m1.nc(); i++) {
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            for (int f = 0; f < m2.nt(); f++) {
+                if (LSD(m2.Nt(f), m1, m1.v(i))) {
+                    list.add(f);
+                }
+                V2F.put(i, list);
+            }
+        }
+    }
 
-	pt getBVertex(int v) {
-		return B.G[B.V[v]];
-	}
+    void edgeToEdge() {
+        for (Entry<Integer, List<Integer>> entry1 : m1.edgeTriangles.entrySet()) {
+            int e1 = entry1.getKey();
+            EdgePoints edge1 = m1.makeEdge(m1.edges.get(e1));
+            List<Integer> t1 = entry1.getValue();
 
-	boolean LSD(vec N, Mesh m, int v) {
-		List<Edge> edges = m.edgeMap.get(v);
-		for (Edge edge : edges) {
-			if (d(N, V(edge)) >= 0) return false;
-		}
-		return true;
-	}
+            for (Entry<Integer, List<Integer>> entry2 : m2.edgeTriangles.entrySet()) {
+                int e2 = entry2.getKey();
+                EdgePoints edge2 = m2.makeEdge(m2.edges.get(e2));
+                List<Integer> t2 = entry2.getValue();
 
-	void remap() {
-		V2F.clear();
-		F2V.clear();
-		E2E.clear();
-		faceToVertex();
-		vertexToFace();
-		edgeToEdge();
-	}
+                List<vec> tangents = new ArrayList<vec>();
+
+                for (Integer t : t1) {
+                    tangents.add(N(V(edge1), m1.Nt(t)));
+                }
+
+                for (Integer t : t2) {
+                    tangents.add(N(V(edge2), m2.Nt(t)));
+                }
+
+                vec N = N(V(edge1), V(edge2));
+
+                boolean oneTested = true,
+                        sign = false,
+                        result = false;
+
+                for (vec v : tangents) {
+                    if (d(N, v) == 0) {
+                        result = false;
+                        break;
+                    }
+
+                    if (!oneTested) {
+                        oneTested = true;
+                        sign = d(N, v) < 0;
+                    } else {
+                        if ((d(N, v) < 0) != sign) break;
+                        result = true;
+                    }
+                }
+
+                if (result) {
+                    if (!E2E.containsKey(e1)) E2E.put(e1, new ArrayList<Integer>());
+                    E2E.get(e1).add(e2);
+                }
+            }
+        }
+
+
+        for (int i = 0; i < m1.edgeTriangles.size(); i++) {
+            for (int j = 0; j < m2.edges.size(); j++) {
+                EdgePoints e1 = m1.makeEdge(m1.edges.get(i));
+                EdgePoints e2 = m2.makeEdge(m2.edges.get(j));
+                vec normal = N(V(e1), V(e2));
+
+            }
+        }
+    }
+
+    boolean LSD(vec N, Mesh m, int v) {
+        List<Integer> edges = m.vertexEdges.get(v);
+        for (Integer e : edges) {
+            EdgePoints edge = m.makeEdge(m.edges.get(e));
+            if (d(N, V(edge)) >= 0) return false;
+        }
+        return true;
+    }
 };

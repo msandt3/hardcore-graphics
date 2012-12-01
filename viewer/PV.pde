@@ -6,6 +6,9 @@
 
 // ===== vector class
 class vec { float x=0,y=0,z=0; 
+   public int hashCode() {
+    return (int) (x + y + z);
+   }
    vec () {}; 
    vec (float px, float py, float pz) {x = px; y = py; z = pz;};
    vec set (float px, float py, float pz) {x = px; y = py; z = pz; return this;}; 
@@ -273,21 +276,3 @@ class fourDPoint{
     return temp;
   }
 }
-boolean shouldDraw(Mesh n, Edge e, Mesh m,Edge f,pt a, pt b, pt c, pt d){
-      vec quadNormal= N(V(c,b),V(c,a));//Find the normal of the traveling quad 
-     //stroke(black);
-     //show(a,V(100,quadNormal));
-     // println(quadNormal);
-      m.setTangentsOfEdge(e);
-      n.setTangentsOfEdge(f);
- 
-      if(d(quadNormal,e.tan1)>0&&d(quadNormal,e.tan2)>0&&d(quadNormal,f.tan1)>0&&d(quadNormal,f.tan2)>0)
-        return true; 
-      //}
-     //else 
-     if(d(quadNormal,e.tan1)<0&&d(quadNormal,e.tan2)<0&&d(quadNormal,f.tan1)<0&&d(quadNormal,f.tan2)<0){
-         return true;
-      }
-      return false;        	
-}
-
