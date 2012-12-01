@@ -61,8 +61,7 @@ Solid testSolid;
 Curve sCurve, s1Curve,s2Curve,s3Curve;
 Solid sLocal,s1Local;
 //Nevilles Morph points
-pt t1A,t1B,t1C,t2A,t2B,t2C;
-pt p;
+
 // *******************************************************************************************************************    SETUP
 void setup() {
   size(800, 800, OPENGL);  
@@ -459,6 +458,23 @@ void mouseDragged() {
     }
     generateMeshes();
   }
+ if(keyPressed&&key=='q'){
+    Solid localSolid;
+    float angle=0.0;
+    if(edit){
+     localSolid=s.toLocalSolid(s.I,s.J,s.K,s.origin);
+     if(pmouseX>360){
+       angle=(pmouseX%360)*.001;
+       s.I=s.I.rotate(angle,s.I,s.K); 
+     }
+     else
+       s.I=s.I.rotate(pmouseX*.001,s.I,s.K);
+     s.I.normalize();
+     s.K=N(s.I,s.J).normalize();
+     s.copyPts(localSolid.toGlobalSolid(s.I,s.J,s.K,s.origin));
+    }
+    generateMeshes();
+ }
      // move selected vertex of curve C in screen plane
   if(keyPressed&&key=='b') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
   if(keyPressed&&key=='v') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J) ); } // move selected vertex of curve Cb in XZ

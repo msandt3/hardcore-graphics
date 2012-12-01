@@ -113,17 +113,12 @@ void drawMorph(float t) {
      endShape();
     }
   }
-//println(nv);
-
   for (int i = 0; i < nc; i++) {
     List<Integer> triangles = map.V2F.get(i);
     //if (triangles.size() > 0) println("i: " + i);
     for (Integer triangle : triangles) {
-      //println("i: " + i + " tri: " + triangle);
-      //println("triangle: " + triangle);
       fill(red);
       noStroke();
-      
       beginShape();
       vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 0))));
       vertex(P(G[V[i]],t,P(map.getBVertex(3 * triangle + 1))));
@@ -136,8 +131,6 @@ void drawMorph(float t) {
       List<Edge> edges = entry.getValue();
       for (Edge B : edges) {
        stroke(black); 
-     //  A.drawTangents();       
-     //  if(!shouldDraw(map.A,A,map.B,B,P(A.X,t,B.Y),P(A.X,t,B.X),P(A.Y,t,B.Y),P(A.Y,t,B.X))){  
         noFill();
         fill(blue);
         noStroke();
@@ -147,21 +140,8 @@ void drawMorph(float t) {
           vertex(P(A.X,t,B.X));
           vertex(P(A.Y,t,B.X));
         endShape();
-     // }
-   /*  else{
-        fill(red);
-        noStroke();
-       beginShape();
-          vertex(P(A.Y,t,B.Y));
-          vertex(P(A.X,t,B.Y));
-          vertex(P(A.X,t,B.X));
-          vertex(P(A.Y,t,B.X));
-        endShape();
-     }*/
      }
-     
   }
-
 }
 
       

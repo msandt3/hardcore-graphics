@@ -117,13 +117,13 @@ class MeshMap {
 		return B.G[B.V[v]];
 	}
 
-	boolean LSD(vec N, Mesh m, int v) {
-		List<Edge> edges = m.edgeMap.get(v);
-		for (Edge edge : edges) {
-			if (d(N, V(edge)) >= 0) return false;
-		}
-		return true;
-	}
+  	boolean LSD(vec N, Mesh m, int v) {
+  		List<Edge> edges = m.edgeMap.get(v);
+  		for (Edge edge : edges) {
+  			if (d(N, V(edge)) >= 0) return false;
+  		}
+  		return true;
+  	}
 
 	void remap() {
 		V2F.clear();
