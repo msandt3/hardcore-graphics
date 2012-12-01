@@ -1,719 +1,546 @@
-
-import processing.opengl.*;                // load OpenGL libraries and utilities
-import javax.media.opengl.*; 
-import javax.media.opengl.glu.*; 
-import java.nio.*;
-import java.util.Map.Entry;
-GL gl; 
-GLU glu; 
-
-// ****************************** GLOBAL VARIABLES FOR DISPLAY OPTIONS *********************************
-Boolean 
-  showMesh=true,
-  translucent=false,   
-  showSilhouette=true, 
-  showNMBE=true,
-  showSpine=true,
-  showControl=true,
-  showTube=true,
-  showFrenetQuads=false,
-  showFrenetNormal=false,
-  filterFrenetNormal=true,
-  showTwistFreeNormal=false, 
-  showHelpText=false;
+float w=0;
+class Curve {
+  int n=0;                            // current number of control points
+  pt [] P = new pt[5000];            //  array of points
+  ArrayList<pt> pts = new ArrayList<pt>(5000);
+   
+  vec [] Nx = new vec[5000];          // twist free normal vectors 
+  vec [] Ny = new vec[5000];          // twist free binormal vectors
+  vec [] Nfx = new vec[5000];          // Frenet normal vectors
+  vec [] Nfy = new vec[5000];          // Frenet normal vectors
+  float [] twist = new float[5000];       // angle between Frenet and twist-free normal
+  float [] curvature = new float[5000];   // curvature between Frenet and twist-free normal
+  float [] curv = new float[5000];   // curvature between Frenet and twist-free normal
   
-  Boolean drawRotate,edit,edit1,edit2,edit3,animate;
-Curve polygon,controlPoints,temp, tempCurve;
-Curve editCurve;
-Solid editSolid;
-RotateMatrix matrix;
-Solid s,s1,s2,s3;
-int numRotations;
- Test test;
-  float time = 0.0,
-        deltaT = 0.01;
-// String SCC = "-"; // info on current corner
-   
-// ****************************** VIEW PARAMETERS *******************************************************
-pt F = P(0,0,0); pt T = P(0,0,0); pt E = P(0,0,1000); vec U=V(0,1,0);  // focus  set with mouse when pressing ';', eye, and up vector
-pt Q=P(0,0,0); vec I=V(1,0,0); vec J=V(0,1,0); vec K=V(0,0,1); // picked surface point Q and screen aligned vectors {I,J,K} set when picked
-void initView() {Q=P(0,0,0); I=V(1,0,0); J=V(0,1,0); K=V(0,0,1); F = P(0,0,0); E = P(0,0,1500); U=V(0,1,0); } // declares the local frames
-
-// ******************************** MESHES ***********************************************
-Mesh M=new Mesh(),
-     M1=new Mesh(),
-     M2=new Mesh(),
-     M3=new Mesh(); // meshes for models M0 and M1
-
-float volume1=0, volume0=0;
-float sampleDistance=1;
-// ******************************** CURVES & SPINES ***********************************************
-//Curve C0 = new Curve(5), S0 = new Curve(), C1 = new Curve(5), S1 = new Curve();  // control points and spines 0 and 1
-//Curve C= new Curve(11,130,P());
-int nsteps=250; // number of smaples along spine
-float sd=10; // sample distance for spine
-pt sE = P(), sF = P(); vec sU=V(); //  view parameters (saved with 'j'
-pt O;
-boolean mainView;
-ArrayList<Curve> orientationTest;
-int counter;
-Solid testSolid;
-Curve sCurve, s1Curve,s2Curve,s3Curve;
-Solid sLocal,s1Local;
-//Nevilles Morph points
-pt t1A,t1B,t1C,t2A,t2B,t2C;
-pt p;
-// *******************************************************************************************************************    SETUP
-void setup() {
-  size(800, 800, OPENGL);  
-  //size(800,800,800);
-  setColors(); sphereDetail(6); 
-  numRotations=6;
-  PFont font = loadFont("GillSans-24.vlw"); textFont(font, 20);  // font for writing labels on //  PFont font = loadFont("Courier-14.vlw"); textFont(font, 12); 
-  // ***************** OpenGL and View setup
-  glu= ((PGraphicsOpenGL) g).glu;  PGraphicsOpenGL pgl = (PGraphicsOpenGL) g;  gl = pgl.beginGL();  pgl.endGL();
-  initView(); // declares the local frames for 3D GUI
-  sCurve=new Curve();
-  sCurve.loadPts();
- animate=true;
-  matrix=new RotateMatrix();
-  temp=new Curve();
-  drawRotate=false;
-  s=new Solid(sCurve);
-  s.k=5;
-  s.setOrigin(new pt(-500,200,0));
-  s.readyToDraw(sCurve);
-  sLocal=s.toLocalSolid();
-  //O =s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
-  //println("SCURVE1: "+sCurve);
-   mainView=true;
-   //Create solids
-   s1Curve=new Curve();
-   s1Curve.loadPts("data/P1.pts");
-   s1=new Solid(s1Curve);
-   s1.setOrigin(new pt(-250,-400,0));
-   s1.k=4;
-   s1.readyToDraw(s1Curve);
-   s1Local=s1.toLocalSolid();
-   //s1.readyToDraw(s1Curve);
-   
-   s2Curve=new Curve();
-   s2Curve.loadPts("data/P2.pts");
-   s2=new Solid(s2Curve);
-   s2.setOrigin(new pt(100,-400,0));
-   s2.k=6;
-   s2.readyToDraw(s2Curve);
-
-   s3Curve=new Curve();
-   s3Curve.loadPts("data/P3.pts");
-   s3=new Solid(s3Curve);
-   s3.setOrigin(new pt(400,200,0));
-   s3.k=8;
-   s3.readyToDraw(s3Curve);
-
-  M.declareVectors();
-  M1.declareVectors();
-  M2.declareVectors();
-  M3.declareVectors();
-
-   generateMeshes();
-   M.map(0, M1);
-
-   //initSolids();
-   edit=false;
-   edit1=false;
-   edit2=false;
-   edit3=false;
-   p=new pt(0,0,0);
- 
-  // ***************** Set view  
+  vec [] L = new vec[5000];          // Laplace vectors for smoothing
+  int p=0;                          // index to the currently selected vertex being dragged
+  Curve(int pn) {n=pn; declarePoints();}
+  Curve(int pn, float r) {n=pn; declarePoints(); resetPoints(r); }
+  Curve(int pn, float r, pt Q) {n=pn; declarePoints(); resetPoints(r,Q); }
+  Curve() {declarePoints(); resetPoints(); }
+  int next(int j) {  return min(n-1,j+1); }  // next point 
+  int prev(int j) {  return max(0,j-1); }   // previous point                                                      
+  void pp() {p=prev(p);}
+  void np() {p=next(p);}
+  pt Pof(int p) {return pts.get(p);}
+  pt lastP(){
+    return pts.get(pts.size()-1);
+  }
+  pt nextP(pt P){
+     int vertex= closestVertexID(P);
+    if(vertex==pts.size()-1)
+      return pts.get(pts.size()-1);
+    return pts.get(closestVertexID(P)+1);
+  }
+  
+  pt prevP(pt P){
+    int vertex= closestVertexID(P);
+    if(vertex==0)
+      return pts.get(0);
+  return pts.get(closestVertexID(P)-1);  
 }
-// ******************************************************************************************************************* DRAW      
-void draw() {  
-  background(white);
-  // -------------------------------------------------------- Help ----------------------------------
-  if(showHelpText) {
-    camera(); // 2D display to show cutout
-    lights();
-    fill(black); writeHelp();
-    return;
+  int numPts(){
+    return pts.size();
+  }
+  pt getPtAtIndex(int i){
+    return pts.get(i);
+  }
+  pt cP() {return pts.get(p);}
+  pt pP() {return pts.get(prev(p));}
+  pt nP() {return pts.get(next(p));}
+  void declarePoints() {for (int i=0; i<pts.size(); i++) {pts.set(i,P()); Nfx[i]=V(); Nfy[i]=V(); Nx[i]=V(); Ny[i]=V();} }  // allocates space
+  void resetPoints() {
+    float r=100; 
+    for (int i=0; i<n; i++) {
+      pt temp = pts.get(i);
+      temp.x=r*cos(TWO_PI/n);
+      temp.y=r*sin(TWO_PI/n);
+      pts.set(i,temp);
+    }
+  } // init the points to be on a circle
+  void resetPoints(float r) {
+    //println(">>n="+n);
+    for (int i=0; i<n; i++) {
+      pt temp = pts.get(i);
+      temp.x=r*cos(TWO_PI/n);
+      temp.y=r*sin(TWO_PI/n);
+      pts.set(i,temp);
+    }
+  } // init the points to be on a circle
+  void resetPoints(float r, pt Q) {
+    println(">>n="+n); 
+    for (int i=0; i<n; i++) {
+      pt temp = pts.get(i);
+      temp.x=r*cos(TWO_PI/n);
+      temp.y=r*sin(TWO_PI/n);
+      temp.add(Q);
+      pts.set(i,temp);
+    }
+  } // init the points to be on a circle
+  Curve empty(){ n=0; pts.clear(); return this; };      // resets the vertex count to zero
+  void pick(pt M) {
+    p=0; 
+    for (int i=1; i<n; i++){
+      if (d(M,pts.get(i))<d(M,pts.get(p))) 
+        p=i;
+    }
+  }
+  void dragPoint(vec V) {
+    pt temp = P(pts.get(p));
+    if(temp.add(V).x >= 0){
+      pts.get(p).add(V);
+    }
+  }
+   void pickPointForInsertion(pt M){	
+   p=0;
+    pt min=this.pts.get(0);
+    for (int i=0; i<pts.size(); i++){ 
+     if (d(M,pts.get(i))<d(M,min)) {
+         p=i;
+        min=pts.get(i);	
+    }	
+  }
+ pts.add(p,M);
+}
+  void dragAll(vec V) {
+    for (int i=0; i<n; i++)
+      pts.get(i).add(V);
+  }
+  void dragAll(int s, int e, vec V) {
+    for (int i=s; i<e+1; i++) 
+      pts.get(i).add(V);
+  }
+  void movePointTo(pt Q) {
+    pts.get(p).set(Q);
+  }
+  Curve append(pt Q)  {
+    if(n+1 < P.length) { 
+      p=n; 
+      pts.get(n++).set(Q); 
     } 
-   if(edit){
-    sCurve.briansDraw();
-    sCurve.drawPoints();
-   }
-   else if(edit1){
-    s1Curve.briansDraw();
-    s1Curve.drawPoints(); 
-   }
-   else if(edit2){
-    s2Curve.briansDraw();
-    s2Curve.drawPoints(); 
-   }
-   else if(edit3){
-    s3Curve.briansDraw();
-    s3Curve.drawPoints(); 
-   }
-  // -------------------------------------------------------- 3D display : set up view ----------------------------------
-  camera(E.x, E.y, E.z, F.x, F.y, F.z, U.x, U.y, U.z); // defines the view : eye, ctr, up
-  vec Li=U(A(V(E,F),0.1*d(E,F),J));   // vec Li=U(A(V(E,F),-d(E,F),J)); 
-  directionalLight(255,255,255,Li.x,Li.y,Li.z); // direction of light: behind and above the viewer
-  specular(255,255,0); shininess(5);
+    return this; 
+  } // add point at end of list
   
-  //s.draw();
-  //s1.draw();
-  //s2.draw();
-  //s3.draw(); 
+  void delete() { 
+    for (int i=p; i<n-1; i++) 
+      pts.get(i).set(pts.get(next(i))); 
+    n--; 
+    p=prev(p);
+  }
   
-  M.drawMorph(time);
-  if(time>=1.0)
-    deltaT=-.01;
-  else if(time<=0)
-    deltaT=.01;
-  if(animate){
-    time+=deltaT;
- }
-// -------------------------- display and edit control points of the spines and box ----------------------------------   
-    if(pressed) {
-         if (keyPressed&&(key=='a')) {//Picks a point on the polygon
-           if(edit)
-             sCurve.pickPoint(new pt(pmouseX,pmouseY,0));
-           else if(edit1)
-             s1Curve.pickPoint(new pt(pmouseX,pmouseY,0));
-            else if(edit2)
-             s2Curve.pickPoint(new pt(pmouseX,pmouseY,0));
-            else if(edit3)
-             s3Curve.pickPoint(new pt(pmouseX,pmouseY,0));
-       }
+  void insert() { // inserts after p
+    if(p==n-1) {
+      pts.get(n).set(pts.get(n-1)); 
+      p=n; 
+      n++; 
+    } 
+    else {
+      for (int i=n-1; i>p; i--) P[i+1].set(P[i]); 
+      n++;  
+      pts.get(p+1).set(pts.get(p)); 
+      p=p+1; 
+    }
+  };
+  void insert(pt M) {                // grabs closeest vertex or adds vertex at closest edge. It will be dragged by te mouse
+     p=0; 
+     for (int i=0; i<n; i++){
+       if (d(M,pts.get(i))<d(M,pts.get(p))) 
+         p=i; 
      }
      
-     // -------------------------------------------------------- show mesh ----------------------------------   
-   if(showMesh) { 
-    fill(yellow); stroke(white);
-    M.showFront();
-    M1.showFront();
-    M2.showFront();
-    M3.showFront();
-  } 
-   
-    // -------------------------- pick mesh corner ----------------------------------   
-   if(pressed) if (keyPressed&&(key=='.')) M.pickc(Pick());
- 
- 
-     // -------------------------------------------------------- show mesh corner ----------------------------------   
-//   if(showMesh) { fill(red); noStroke(); M.showc();} 
- 
-    // -------------------------------------------------------- edit mesh  ----------------------------------   
-  if(pressed) {
-   
-     if (keyPressed&&(key=='X'||key=='Z')) M.pickc(Pick()); // sets M.sc to the closest corner in M from the pick point
-     }
- 
-  // -------------------------------------------------------- graphic picking on surface and view control ----------------------------------   
- //if (keyPressed&&key==' ') T.set(Pick()); // sets point T on the surface where the mouse points. The camera will turn toward's it when the ';' key is released
-  //SetFrame(Q,I,J,K);  // showFrame(Q,I,J,K,30);  // sets frame from picked points and screen axes
-  // rotate view 
-  if(!keyPressed&&mousePressed) {E=R(E,  PI*float(mouseX-pmouseX)/width,I,K,F); E=R(E,-PI*float(mouseY-pmouseY)/width,J,K,F); } // rotate E around F 
-  if(keyPressed&&key=='D'&&mousePressed) {E=P(E,-float(mouseY-pmouseY),K); }  //   Moves E forward/backward
-  if(keyPressed&&key=='d'&&mousePressed) {E=P(E,-float(mouseY-pmouseY),K);U=R(U, -PI*float(mouseX-pmouseX)/width,I,J); }//   Moves E forward/backward and rotatees around (F,Y)
-  
-  // -------------------------------------------------------- Disable z-buffer to display occluded silhouettes and other things ---------------------------------- 
-  hint(DISABLE_DEPTH_TEST);  // show on top
- // stroke(black); if(showControl) {C0.showSamples(2);}
-  if(showMesh&&showSilhouette) {stroke(dbrown); M.drawSilhouettes(); }  // display silhouettes
-  //strokeWeight(2); stroke(red);if(showMesh&&showNMBE) M.showMBEs();  // manifold borders
-  camera(); // 2D view to write help text
-  writeFooterHelp();
-  hint(ENABLE_DEPTH_TEST); // show silouettes
+     pts.add(p,M);
 
-  // -------------------------------------------------------- SNAP PICTURE ---------------------------------- 
-   if(snapping) snapPicture(); // does not work for a large screen
-    pressed=false;
-  
-} // end draw
+  }
+   
+  Curve makeFrom(Curve C, int v) {
+    empty(); 
+    for(float t=0; t<=1.001; t+=.1/v) 
+      append(C.interpolate(t)); 
+    return this;
+  }
+  pt interpolate(float t) { 
+    return D(pts.get(0),pts.get(1),pts.get(2),pts.get(3),pts.get(4),t); 
+  }
 
-void generateMeshes() {
-    M.resetCounters();
-    M.makeRevolution(s);
-    M1.resetCounters();
-    M1.makeRevolution(s1);
-    M2.resetCounters();
-    M2.makeRevolution(s2);
-    M3.resetCounters();
-    M3.makeRevolution(s3);
-}
- 
- void regenerateMeshes() {
-    generateMeshes();
-    M.remap(0);
-    //M.map(1, M2);
-    //M.map(2, M3);
- }
- 
- // ****************************************************************************************************************************** INTERRUPTS
-Boolean pressed=false;
-void mousePressed() {pressed=true; 
-  if(keyPressed&&key=='i'){
-    if(edit){
-      sCurve.pickPointForInsertion(new pt(pmouseX,pmouseY,0));
-      sCurve.makeConvex();
-      s.readyToDraw(sCurve);
-    }
-    else if(edit1){
-      s1Curve.pickPointForInsertion(new pt(pmouseX,pmouseY,0));
-      s1.readyToDraw(s1Curve);
-    }
-    else if(edit2){
-      s2Curve.pickPointForInsertion(new pt(pmouseX,pmouseY,0));
-      s2.readyToDraw(s2Curve);
-    }
-    else if(edit3){
-      s3Curve.pickPointForInsertion(new pt(pmouseX,pmouseY,0));
-      s3.readyToDraw(s3Curve);
-    }
-}
-if(keyPressed&&(key=='d')){
-  if(edit){
-    sCurve.pickPoint(new pt(pmouseX,pmouseY,0));
-   if(sCurve.p!=-1&&sCurve.p!=sCurve.pts.size()-1&&sCurve.p!=0){
-     sCurve.pts.remove(sCurve.p);
-     s.readyToDraw(sCurve);
-   }
+  Curve drawEdges() {
+    beginShape(); 
+    for (int i=0; i<pts.size(); i++)
+      vertex(pts.get(i)); 
+    endShape(); 
+    return this;
+  }  // fast draw of edges
+  
+  Curve showSamples() {
+    for (int i=0; i<pts.size(); i++)
+      show(pts.get(i),1); 
+    return this;
+  }  // fast draw of edges
+  
+  Curve showSamples(float r) {
+    for (int i=0; i<pts.size(); i++)
+      show(pts.get(i),r); 
+    return this;
+  }  // fast draw of edges
+  void showPick() {show(pts.get(p),2); }  // fast draw of edges
+  
+  void cloneFrom(Curve D) {
+    for (int i=0; i<max(n,D.n); i++) 
+      pts.get(i).set(D.pts.get(i)); 
+      n=D.n;
   }
-   else if(edit1){
-    s1Curve.pickPoint(new pt(pmouseX,pmouseY,0));
-     if(s1Curve.p!=-1&&s1Curve.p!=s1Curve.pts.size()-1&&s1Curve.p!=0){
-       s1Curve.pts.remove(s1Curve.p);
-       s1.readyToDraw(s1Curve);
-     } 
+  pt pt(int i) {
+    return pts.get(i);
   }
-  else if(edit2){
-    s2Curve.pickPoint(new pt(pmouseX,pmouseY,0));
-     if(s2Curve.p!=-1&&s2Curve.p!=s2Curve.pts.size()-1&&s2Curve.p!=0){
-       s2Curve.pts.remove(s2Curve.p);
-       s2.readyToDraw(s2Curve);
-     } 
-  }//end of else if
-  else if(edit3){
-    s3Curve.pickPoint(new pt(pmouseX,pmouseY,0));
-     if(s3Curve.p!=-1&&s2Curve.p!=s3Curve.pts.size()-1&&s3Curve.p!=0){
-       s3Curve.pts.remove(s3Curve.p);
-       s3.readyToDraw(s3Curve);
-     } 
-  }//end of else if
-  regenerateMeshes();
-}
-}
-void mouseDragged() {
-   if(keyPressed&&key=='a'){
-     if(edit&&sCurve.p!=-1){
-        if(sCurve.p==0 || sCurve.p==sCurve.pts.size()-1){
-          sCurve.dragPoint(V(0,new vec(0,0,0),.5*(mouseY-pmouseY),J));
-        }
-        else{
-            sCurve.dragPoint(V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),J));
-        }
-       s.readyToDraw(sCurve);
-     }
-     if(edit1&&s1Curve.p!=-1){
-        if(s1Curve.p==0 || s1Curve.p==s1Curve.pts.size()-1){
-          s1Curve.dragPoint(V(0,new vec(0,0,0),.5*(mouseY-pmouseY),J));
-        }
-        else{
-         s1Curve.dragPoint(V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),J));
-       }
-       s1.readyToDraw(s1Curve);
-     }
-     if(edit2&&s2Curve.p!=-1){
-        if(s2Curve.p==0 || s2Curve.p==s2Curve.pts.size()-1){
-          s2Curve.dragPoint(V(0,new vec(0,0,0),.5*(mouseY-pmouseY),J));
-        }
-        else{
-         s2Curve.dragPoint(V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),J));
-       }
-       s2.readyToDraw(s2Curve);
-     }
-     if(edit3&&s3Curve.p!=-1){
-        if(s3Curve.p==0 || s3Curve.p==s3Curve.pts.size()-1){
-          s3Curve.dragPoint(V(0,new vec(0,0,0),.5*(mouseY-pmouseY),J));
-        }
-        else{
-         s3Curve.dragPoint(V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),J));
-       }
-       s3.readyToDraw(s3Curve);
-     }
-     //regenerateMeshes();
-  } 
-  if(keyPressed&&key=='s') {
-     
-     }
-  if(keyPressed&&key=='o'){
-     Solid localSolid;
-     float angle=0.0;
-    if(edit){
-     localSolid=s.toLocalSolid(s.I,s.J,s.K,s.origin);
-     if(pmouseX>360){
-      angle=(pmouseX%360)*.001;
-      s.I=s.I.rotate(angle,s.I,s.J); 
-     }
-     else
-       s.I=s.I.rotate(pmouseX*.001,s.I,s.J);
-       s.I.normalize();
-       s.J=N(s.K,s.I).normalize();
-       s.copyPts(localSolid.toGlobalSolid(s.I,s.J,s.K,s.origin));
+  void showLoop() { 
+    noFill();
+    stroke(orange);
+    drawEdges();
+    noStroke();
+    fill(orange);
+    showSamples(); 
+  }
+  void briansDraw(){
+    
+    stroke(blue);
+    noFill();
+    for(int i=0;i<pts.size()-1;i++){
+       line(pts.get(i).x,pts.get(i).y,pts.get(i).z,pts.get(i+1).x,pts.get(i+1).y,pts.get(i+1).z);
     }
-    else if(edit1){
-     localSolid=s1.toLocalSolid(s1.I,s1.J,s1.K,s1.origin);
-     if(pmouseX>360){
-      angle=(pmouseX%360)*.001;
-      s1.I=s1.I.rotate(angle,s1.I,s1.J); 
-     }
-     else
-       s1.I=s1.I.rotate(pmouseX*.001,s1.I,s1.J);
-     s1.I.normalize();
-     s1.J=N(s1.K,s1.I).normalize();
-     s1.copyPts(localSolid.toGlobalSolid(s1.I,s1.J,s1.K,s1.origin));
-    }
-    else if(edit2){
-     localSolid=s2.toLocalSolid(s2.I,s2.J,s2.K,s2.origin);
-     if(pmouseX>360){
-      angle=(pmouseX%360)*.001;
-      s2.I=s2.I.rotate(angle,s2.I,s2.J); 
-     }
-     else
-       s2.I=s2.I.rotate(pmouseX*.001,s2.I,s2.J);
-     s2.I.normalize();
-     s2.J=N(s2.K,s2.I).normalize();
-     s2.copyPts(localSolid.toGlobalSolid(s2.I,s2.J,s2.K,s2.origin));
-    }
-    else if(edit3){
-     localSolid=s3.toLocalSolid(s3.I,s3.J,s3.K,s3.origin);
-      if(pmouseX>360){
-      angle=(pmouseX%360)*.001;
-      s3.I=s3.I.rotate(angle,s3.I,s3.J); 
-     }
-     else
-       s3.I=s3.I.rotate(pmouseX*.001,s3.I,s3.J);
-     s3.I.normalize();
-     s3.J=N(s3.K,s3.I).normalize();
-     s3.copyPts(localSolid.toGlobalSolid(s3.I,s3.J,s3.K,s3.origin));
-    }
-    generateMeshes();
   }  
-  if(keyPressed&&key=='p'){
-         Solid localSolid;
-      float angle=0.0;
-    if(edit){
-     localSolid=s.toLocalSolid(s.I,s.J,s.K,s.origin);
-     if(pmouseX>360){
-       angle=(pmouseX%360)*.001;
-       s.J=s.J.rotate(angle,s.J,s.K); 
-     }
-     else
-       s.J=s.J.rotate(pmouseX*.001,s.J,s.K);
-     s.J.normalize();
-     s.K=N(s.I,s.J).normalize();
-     s.copyPts(localSolid.toGlobalSolid(s.I,s.J,s.K,s.origin));
-    }
-    else if(edit1){
-  
-         angle=0.0;
-     localSolid=s1.toLocalSolid(s1.I,s1.J,s1.K,s1.origin);
-     if(pmouseX>360){
-       angle=(pmouseX%360)*.001;
-       s1.J=s1.J.rotate(angle,s1.J,s1.K); 
-     }
-     else
-       s1.J=s1.J.rotate(pmouseX*.001,s1.J,s1.K);
-     s1.J.normalize();
-     s1.K=N(s1.I,s1.J).normalize();
-     s1.copyPts(localSolid.toGlobalSolid(s1.I,s1.J,s1.K,s1.origin));
-    }
-    else if(edit2){
-
-         angle=0.0;
-     localSolid=s2.toLocalSolid(s2.I,s2.J,s2.K,s2.origin);
-     if(pmouseX>360){
-       angle=(pmouseX%360)*.001;
-       s2.J=s2.J.rotate(angle,s2.J,s2.K); 
-     }
-     else
-       s2.J=s2.J.rotate(pmouseX*.001,s2.J,s2.K);
-     s2.J.normalize();
-     s2.K=N(s2.I,s2.J).normalize();
-     s2.copyPts(localSolid.toGlobalSolid(s2.I,s2.J,s2.K,s2.origin));
-    }
-    else if(edit3){
-         angle=0.0;
-     localSolid=s3.toLocalSolid(s3.I,s3.J,s3.K,s3.origin);
-     if(pmouseX>360){
-       angle=(pmouseX%360)*.001;
-       s3.J=s3.J.rotate(angle,s3.J,s3.K); 
-     }
-     else
-       s3.J=s3.J.rotate(pmouseX*.001,s3.J,s3.K);
-     s3.J.normalize();
-     s3.K=N(s3.I,s3.J).normalize();
-     s3.copyPts(localSolid.toGlobalSolid(s3.I,s3.J,s3.K,s3.origin));
-      
-    }
-    generateMeshes();
-  }
-     // move selected vertex of curve C in screen plane
-  if(keyPressed&&key=='b') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
-  if(keyPressed&&key=='v') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J) ); } // move selected vertex of curve Cb in XZ
-  if(keyPressed&&key=='x') {M.add(float(mouseX-pmouseX),I).add(-float(mouseY-pmouseY),J); M.normals();} // move selected vertex in screen plane
-  if(keyPressed&&key=='z') {M.add(float(mouseX-pmouseX),I).add(float(mouseY-pmouseY),K); M.normals();}  // move selected vertex in X/Z screen plane
-  if(keyPressed&&key=='X') {M.addROI(float(mouseX-pmouseX),I).addROI(-float(mouseY-pmouseY),J); M.normals();} // move selected vertex in screen plane
-  if(keyPressed&&key=='Z') {M.addROI(float(mouseX-pmouseX),I).addROI(float(mouseY-pmouseY),K); M.normals();}  // move selected vertex in X/Z screen plane 
-  }
-
-void mouseReleased() {
-  regenerateMeshes();
-   //  U.set(M(J)); // reset camera up vector
-    }
-  
-void keyReleased() {
-   //if(key==' ') F=P(T);                           //   if(key=='c') M0.moveTo(C.Pof(10));
-  // U.set(M(J)); // reset camera up vector
+  int indexOf(pt M){
+   for(int i=0;i<pts.size();i++){
+    if(M==pts.get(i))
+      return i;
    } 
-
- 
-void keyPressed() {
-  if(key=='a') {
-  animate=!animate;
-  } // drag curve control point in xz (mouseDragged)
-  if(key=='b') {
-  }  // move S2 in XZ
-  if(key=='c') {} // load curve
-  if(key=='d') {
-  
-  
-  } 
-  if(key=='e') {}
-  if(key=='f') {}
-  if(key=='g') {
-    M.flatShading=!M.flatShading;
-    M1.flatShading=!M1.flatShading;
-    M2.flatShading=!M2.flatShading;
-    M3.flatShading=!M3.flatShading;
-  } // toggle between flat and gourad shading
-  if(key=='h') {} // hide picked vertex (mousePressed)
-  if(key=='i') {}
-  if(key=='j') {}
-  if(key=='k') {}
-  if(key=='l') {}
-  if(key=='m') {showMesh=!showMesh;}
-  if(key=='n') {showNMBE=!showNMBE;}
-  if(key=='o') {}
-  if(key=='p') {}
-  if(key=='q') {}
-  if(key=='r') {}
-  if(key=='s') {
-    if(edit){
-      sCurve = sCurve.subdivision();
-      s.readyToDraw(sCurve);
-      regenerateMeshes();
-    }else if(edit1){
-      s1Curve = s1Curve.subdivision();
-      s1.readyToDraw(s1Curve);
-       regenerateMeshes();
-    }else if(edit2){
-      s2Curve = s2Curve.subdivision();
-      s2.readyToDraw(s2Curve);
-       regenerateMeshes();
-    }else if(edit3){
-      s3Curve = s3Curve.subdivision();
-      s3.readyToDraw(s3Curve);
-       regenerateMeshes();
-    }
-  } //subdivide currently selected control curve
-  if(key=='t') {
-    if(!animate)
-    time+=deltaT;
-  }
-  if(key=='u') {}
-  if(key=='v') {} // move S2
-  if(key=='w') {}
-  if(key=='x') {} // drag mesh vertex in xy (mouseDragged)
-  if(key=='y') {}
-  if(key=='z') {} // drag mesh vertex in xz (mouseDragged)
-   
-  if(key=='A')// {C.savePts();}
-  if(key=='B') {}
-  if(key=='C') {
-   if(edit) {
-     sCurve = sCurve.makeConvex();
-     s.readyToDraw(sCurve);
-   } else if(edit1) {
-     s1Curve.makeConvex();
-     s1.readyToDraw(s1Curve);
-   } else if(edit2) {
-     s2Curve.makeConvex();
-     s2.readyToDraw(s2Curve);
-   } else if(edit3) {
-     s3Curve.makeConvex();
-     s3.readyToDraw(s3Curve);
-   }
-   regenerateMeshes();
-  }
-  if(key=='D') {} //move in depth without rotation (draw)
-  if(key=='E') {M.smoothen(); M.normals();}
-  if(key=='F') {}
-  if(key=='G') {}
-  if(key=='H') {}
-  if(key=='I') {}
-  if(key=='J') {}
-  if(key=='K') {}
-  if(key=='L') {M.loadMeshVTS().updateON().resetMarkers().computeBox(); F.set(M.Cbox); E.set(P(F,M.rbox*2,K)); for(int i=0; i<10; i++) vis[i]=true;}
-  if(key=='M') {}
-  if(key=='N') {M.next();}
-  if(key=='O') {}
-  if(key=='P') {}
-  if(key=='Q') {exit();}
-  if(key=='R') {}
-  if(key=='S') {M.swing();}
-  if(key=='T') {}
-  if(key=='U') {}
-  if(key=='V') {} 
-  if(key=='W') {M.saveMeshVTS();}
-  if(key=='X') {} // drag mesh vertex in xy and neighbors (mouseDragged)
-  if(key=='Y') {M.refine(); M.makeAllVisible();}
-  if(key=='Z') {} // drag mesh vertex in xz and neighbors (mouseDragged)
-
-  if(key=='`') {M.perturb();}
-  if(key=='~') {showSpine=!showSpine;}
-  if(key=='!') {snapping=true;}
-  if(key=='@') {
-  println("s: "+s);
-  }
-  if(key=='#') {}
-  if(key=='$') //{M.moveTo(C.Pof(10));} // ???????
-  if(key=='%') {}
-  if(key=='&') {}
-  if(key=='*') {sampleDistance*=2;}
-  if(key=='(') {}
-  if(key==')') {showSilhouette=!showSilhouette;}
-  if(key=='_') {
- 
-  }
-  if(key=='+') {M.flip();} // flip edge of M
-  if(key=='-') {M.showEdges=!M.showEdges;}
-  if(key=='=') //{C.P[5].set(C.P[0]); C.P[6].set(C.P[1]); C.P[7].set(C.P[2]); C.P[8].set(C.P[3]); C.P[9].set(C.P[4]);}
-  if(key=='{') {showFrenetQuads=!showFrenetQuads;}
-  if(key=='}') {}
-  if(key=='|') {}
-  if(key=='[') {initView(); F.set(M.Cbox); E.set(P(F,M.rbox*2,K));}
-  if(key==']') {F.set(M.Cbox);}
-  if(key==':') {translucent=!translucent;}
-  if(key==';') {showControl=!showControl;}
-  if(key=='<') {}
-  if(key=='>') {if (shrunk==0) shrunk=1; else shrunk=0;}
-  if(key=='?') {showHelpText=!showHelpText;}
-    if(key=='.') {
-      if(edit){
-        s.k++;
-        s.readyToDraw(sCurve);
-        regenerateMeshes();
-      }
-      else if(edit1){
-        s1.k++;
-        s1.readyToDraw(s1Curve);
-      regenerateMeshes();  
-    }
-      else if(edit2){
-        s2.k++;
-        s2.readyToDraw(s2Curve);
-        regenerateMeshes();
-      }
-      else if(edit3){
-        s3.k++;
-        s3.readyToDraw(s3Curve);
-        regenerateMeshes();
-      }
-  } // pick corner
-  if(key==',') {
-    if(edit&&s.k>2){
-        s.k--;
-        s.readyToDraw(sCurve);
-         regenerateMeshes();
-      }
-      else if(edit1&&s1.k>2){
-        s1.k--;
-        s1.readyToDraw(s1Curve);
-         regenerateMeshes();
-      }
-      else if(edit2&&s2.k>2){
-        s2.k--;
-        s2.readyToDraw(s2Curve);
-         regenerateMeshes();
-      }
-      else if(edit3&&s3.k>2){
-        s3.k--;
-        s3.readyToDraw(s3Curve);
-         regenerateMeshes();
-      }
-  }
-  if(key=='^') {} 
-  if(key=='/') {} 
-  if(key==' ') {
-    edit1=false;
-    edit2=false;
-    edit3=false;
-    edit=false;
-   
-  } // pick focus point (will be centered) (draw & keyReleased)
-  if(key=='1'){
-    //set view to curve one editing view
-   edit=true;
-   edit1=false;
-   edit2=false;
-   edit3=false;
-  }
- if(key=='2'){
-  edit1=true;
-  edit2=false;
-  edit3=false;
-  edit=false;
-  }
-  if(key=='3'){
-   edit2=true;
-   edit3=false;
-   edit=false;
-   edit1=false; 
-  }
-  if(key=='4'){
-   edit3=true;
-   edit=false;
-   edit2=false;
-   edit1=false; 
+   return -1;
     
   }
- if(key=='0') {w=0;}
-//  for(int i=0; i<10; i++) if (key==char(i+48)) vis[i]=!vis[i];
-  
-  } //------------------------------------------------------------------------ end keyPressed
-
-float [] Volume = new float [3];
-float [] Area = new float [3];
-float dis = 0;
-  
-Boolean prev=false;
-
-void showGrid(float s) {
-  for (float x=0; x<width; x+=s*20) line(x,0,x,height);
-  for (float y=0; y<height; y+=s*20) line(0,y,width,y);
+  int closestVertexID(pt M) {
+    int v=0; 
+    for (int i=1; i<pts.size(); i++) 
+    if (d(M,pts.get(i))<d(M,pts.get(v)))
+      v=i;
+    if(v>=this.pts.size()){
+      return -1;
+    }
+    return v;
   }
+  pt ClosestVertex(pt M) {
+    pt R=pts.get(0); 
+    for (int i=1; i<n; i++){ 
+      if (d(M,pts.get(i))<d(M,R)) 
+        R=pts.get(i);
+    }
+    return P(R);
+  }
+  void pickPoint(pt M){
+    //pt R=pts.get(0); 
+    p=-1;
+    for (int i=0; i<pts.size(); i++){ 
+      if (d(M,pts.get(i))<10) {
+        p=i;
+        return;
+      }
+    }
+  }
+  float distanceTo(pt M) {
+    float md=d(M,pts.get(0));
+    for (int i=1; i<n; i++)
+      md=min(md,d(M,pts.get(i)));
+    return md;
+  }
+  ArrayList<String> getSaveString(){
+    ArrayList<String> retlist = new ArrayList<String>();
+    for (int i=0; i<pts.size(); i++) {
+      String temp = str(pts.get(i).x)+","+str(pts.get(i).y)+","+str(pts.get(i).z);
+      retlist.add(temp);
+    }
+    println("length of retlist is - "+retlist.size());
+    return retlist;
+  }
+  void savePts() {savePts("data/P.pts");}
   
-  // Snapping PICTURES of the screen
-PImage myFace; // picture of author's face, read from file pic.jpg in data folder
-int pictureCounter=0;
-Boolean snapping=false; // used to hide some text whil emaking a picture
-void snapPicture() {saveFrame("PICTURES/P"+nf(pictureCounter++,3)+".jpg"); snapping=false;}
-void initSolids(){
+  void savePts(String fn) { String [] inppts = new String [n+1];
+    int s=0; inppts[s++]=str(n); 
+    for (int i=0; i<n; i++) {inppts[s++]=str(pts.get(i).x)+","+str(pts.get(i).y)+","+str(pts.get(i).z);};
+    saveStrings(fn,inppts);  };
+  void loadPts() {loadPts("data/P.pts");
+      
+}
+   
+  void loadPts(String fn) { String [] ss = loadStrings(fn);
+    String subpts;
+    int s=0; int comma1, comma2; n = int(ss[s]);
+   // println(n);
+  //  println(pts.size());
+    for(int i=0; i<n; i++) { 
+      String S =  ss[++s];
+      comma1=S.indexOf(',');
+      float x=float(S.substring(0, comma1));
+      String R = S.substring(comma1+1);
+      comma2=R.indexOf(',');      
+      float y=float(R.substring(0, comma2)); 
+      float z=float(R.substring(comma2+1));
+      pts.add(P(x,y,z));  
+      }
+    }
+  void addDif(Curve R, Curve C) {for(int i=0;i<n; i++) pts.get(i).add(V(R.pt(i),C.pt(i)));}    
+  float length () {float L=0; for (int i=0; i<n; i++) L+=d(pts.get(i),pts.get(next(i)));  return(L); }    
 
+// ******************************************************************************************** LACING ***************
+  Curve resampleDistance(float r) { 
+    Curve NL = new Curve();
+    NL.append(pts.get(0));          if (n<3) return NL;
+    pt C = new pt();
+    C.set(pts.get(0));
+    int i=0; 
+    Boolean go=true;
+    while(go) {
+      int j=i; while(j<n && d(P[j+1],C)<r) j++; // last vertex in sphere(C,r);
+      if(j>=n-1) go=false; 
+      else {
+        pt A=pts.get(j), B=pts.get(j+1); 
+        float a=d2(A,B), b=d(V(C,A),V(A,B)), c=d2(C,A)-sq(r);  
+        float s=(-b+sqrt(sq(b)-a*c))/a; 
+        C.set(P(A,s,B)); 
+        NL.append(C);
+        i=j;           
+        }
+      }
+    return NL;
+    }
+   void deepCopy(Curve c){
+     this.pts.clear();
+     for(int i=0;i<c.pts.size();i++){
+       pts.add(c.pts.get(i));
+    } 
+     
+   }
+  void resample(int nn) { // resamples the curve with new nn vertices
+    if(nn<3) return;
+    float L = length();  // current total length  
+    float d = L / nn;   // desired arc-length spacing                        
+    float rd=d;        // remaining distance to next sample
+    float cl=0;        // length of remaining portion of current edge
+    int k=0,nk;        // counters
+    pt [] R = new pt [nn]; // temporary array for the new points
+    pt Q;
+    int s=0;
+    Q=pts.get(0);         
+    R[s++]=P(Q);     
+    while (s<nn) {
+       nk=next(k);
+       cl=d(Q,P[nk]);                            
+       if (rd<cl) {Q=P(Q,rd,pts.get(nk)); R[s++]=P(Q); cl-=rd; rd=d; } 
+       else {rd-=cl; Q.set(pts.get(nk)); k++; };
+       };
+     n=s;   for (int i=0; i<n; i++)  pts.set(i,R[i]);
+   }
+   void changeCurve(pt A){
+    pts.clear(); 
+    this.loadPts();
+    
+    pts.add(A);
+    
+   
+   }
+   void save() {
+    String savePath = selectOutput("Select or specify .pts file where the curve points will be saved");  // Opens file chooser
+    if (savePath == null) {println("No output file was selected..."); return;}
+    else println("writing curve to "+savePath);
+    save(savePath);
+    }
+
+  void save(String fn) {
+    String [] inppts = new String [n+1];
+    int s=0;
+    inppts[s++]=str(n);
+    for (int i=0; i<n; i++) {inppts[s++]=str(pts.get(i).x)+","+str(pts.get(i).y)+","+str(pts.get(i).z);};
+    saveStrings(fn,inppts);  
+    };
+  
+  void load() {
+    String loadPath = selectInput("Select .pts file to load for the curve");  // Opens file chooser
+    if (loadPath == null) {println("No input file was selected..."); return;}
+    else println("reading curve from "+loadPath); 
+    load(loadPath);
+    }
+
+  void load(String fn) {
+    println("loading curve: "+fn); 
+    String [] ss = loadStrings(fn);
+    String subpts;
+    int s=0;   int comma1, comma2;   float x, y, z;   
+    n = int(ss[s++]);
+    println("n="+n);
+    for(int k=0; k<n; k++) {
+      int i=k+s; 
+      comma1=ss[i].indexOf(',');   
+      x=float(ss[i].substring(0, comma1));
+      String rest = ss[i].substring(comma1+1, ss[i].length());
+      comma2=rest.indexOf(',');    y=float(rest.substring(0, comma2)); z=float(rest.substring(comma2+1, rest.length()));
+      pts.set(k,P(x,y,z));
+      //      println(k+":"+"("+x+","+y+","+z+"),");
+      };
+      println("done loading");  
+    }; 
+  
+   /// ******************************** compute normals *******************************************************
+   Curve computeFirstTwistFreeNormal() {
+     vec V=V(pts.get(0),pts.get(1)); vec I=V(1,0,0); vec J=V(0,1,0); vec VxI = N(V,I); vec VxJ = N(V,J); 
+     if (VxI.norm() > VxJ.norm()) Nx[0]=U(N(VxI,V)); else Nx[0]=U(N(VxJ,V));
+     return this;}
+     
+   Curve computeTwistFreeNormals() {
+     pt Q=P(pts.get(0),50,Nx[0]);
+     for(int i=1; i<n-1; i++) {vec BD=V(pts.get(i-1),pts.get(i+1)); float s=d(V(Q,pts.get(i)),BD)/d(V(pts.get(i-1),pts.get(i)),BD); Q=P(Q,s,V(pts.get(i-1),pts.get(i))); Nx[i]=U(pts.get(i),Q);}
+     Nx[n-1]=Nx[n-2];
+     return this;}
+ 
+   Curve computeTwistFreeBiNormals() {
+     for(int i=1; i<n-1; i++) {vec T=V(pts.get(i-1),pts.get(i+1)); Ny[i]=U(N(Nx[i],T)); }
+     Ny[0]=U(N(Nx[0],V(pts.get(0),pts.get(1))));
+     Ny[n-1]=U(N(Nx[n-1],V(pts.get(n-2),pts.get(n-1))));
+     return this;}
+     
+   Curve rotateFirstTwistFreeNormal(float ang) {
+     vec N=Nx[0];
+     vec T=U(pts.get(0),pts.get(1));
+     vec B=U(N(N,T));
+     N.rotate(ang,N,B);
+     return this;} 
+ 
+  Curve prepareSpine(float ang) {   
+    computeFirstTwistFreeNormal();
+    rotateFirstTwistFreeNormal(ang);
+    computeTwistFreeNormals();
+    computeTwistFreeBiNormals();
+    return this;}
+    
+  void showTube(float r, int ne, int nq, color col) {
+      pt [][] C = new pt [2][ne];
+      boolean dark=true;
+      // make circle in local cross section
+      float [] c = new float [ne]; float [] s = new float [ne];
+      for (int j=0; j<ne; j++) {c[j]=r*cos(TWO_PI*j/ne); s[j]=r*sin(TWO_PI*j/ne); };    
+      int p=0; 
+      for (int j=0; j<ne; j++) C[p][j]=P( pts.get(0) , c[j],Nx[0], s[j],Ny[0] ); p=1-p;
+      noStroke();
+      for (int i=1; i<n-1; i++) {
+        if(i%nq==0) dark=!dark; 
+        for (int j=0; j<ne; j++) C[p][j]=P( pts.get(1), c[j],Nx[i], s[j],Ny[i]); p=1-p;
+        if(i>0) for (int j=0; j<ne; j++) {
+            if(dark) fill(200,200,200); else fill(col); dark=!dark; 
+            int jp=(j+ne-1)%ne; beginShape(); v(C[p][jp]); v(C[p][j]); v(C[1-p][j]); v(C[1-p][jp]); endShape(CLOSE);};
+        }        
+      }
+
+  vec II = V(1,0,0), JJ = V(0,1,0);
+ Curve subdivision(){
+    pt []temp= new pt[5000];
+    ArrayList<pt> temp2 = new ArrayList<pt>(5000);
+    for(int i=0; i<pts.size()*2-1; i++)
+      temp2.add(null);
+    
+    int length = pts.size()*2-1;
+  for (int i=0; i<length; i++){
+    int j=i/2;
+    if(i%2==0){ 
+     temp2.set(i,this.pts.get(j));
+    }
+    else{
+      if(i==1){
+        temp2.set(i,P(normalNeville(pts.get(0),pts.get(0),pts.get(1),-1,0,1,.5),normalNeville(pts.get(2),pts.get(1),pts.get(0),-1,0,1,.5)));
+      }
+      else if(i==length-2){
+        temp2.set(i,P(normalNeville(pts.get(j-1),pts.get(j),pts.get(j+1),-1,0,1,.5),normalNeville(pts.get(j+1),pts.get(j+1),pts.get(j),-1,0,1,.5)));
+      }
+      else{
+        temp2.set(i,P(normalNeville(pts.get(j-1),pts.get(j),pts.get(j+1),-1,0,1,.5),normalNeville(pts.get(j+2),pts.get(j+1),pts.get(j),-1,0,1,.5)));
+      }
+    }
+  }
+  pts = temp2;
+  n = n*2-1;
+  return this;
+}
+void drawPoints(){
+   for(int i=0;i<pts.size();i++){
+      pushMatrix();
+      noStroke();
+      fill(red);
+      translate(pts.get(i).x,pts.get(i).y,pts.get(i).z); 
+      sphereDetail(15,15);
+      sphere(10);
+      popMatrix();
+   } 
+  
 }
 
+pt normalNeville(pt A, pt B, pt C, float tA, float tB, float tC, float t){
+    float normalizedA= (t-tA)/(tB-tA);
+    float normalizedB= (t-tB)/(tC-tB);
+    float normalizedC= (t-tA)/(tC-tA);
+    pt P=P(A,normalizedA,B); 
+    pt Q=P(B,normalizedB,C); 
+    return P(P,normalizedC,Q); 
+}
+vec orientationVec(){
+  return V(pts.get(pts.size()-1),pts.get(0));
+  //Need to normalize
+}
+String toString(){
+    String ret="";
+    for(int i=0;i<pts.size();i++){
+       ret+=pts.get(i).toString()+"\n";
+    }
+    return ret;
+}
+  Curve toLocalCurve(vec I, vec J, vec K, pt O){
+    Curve temp= new Curve();
+     for(int i=0;i<pts.size();i++){
+       temp.pts.add(this.pts.get(i).toLocalPt(I,J,K,O)); 
+     }
+     return temp;
+  }
+  Curve toGlobalCurve(vec I,vec J,vec K, pt O){
+    Curve temp = new Curve();
+    for(int i=0;i<pts.size();i++){
+      temp.pts.add(this.pts.get(i).toGlobalPt(I,J,K,O));
+    }
+    return temp;
+  }
+  vec calculateJ(){
+    return R(this.calculateI()).normalize();
+  }
+  vec calculateI(){
+   return orientationVec().normalize(); 
+  }
+  vec calculateK(){
+   return N(calculateJ(),calculateI()).normalize();
+  }
+  Curve makeConvex() {
+    ArrayList<pt> convexHull = new ArrayList<pt>();
+    pt pointOnHull = pts.get(0);
+    pt endPoint;
+    int i = 0;
+    do {
+      convexHull.add(pointOnHull);
+      endPoint = pts.get(0);
+      for (int j = 1; j < pts.size(); j++) {
+        if (endPoint == pointOnHull || isLeft(convexHull.get(i), endPoint, pts.get(j))) {
+          endPoint = pts.get(j);
+        }
+      }
+      i++;
+      pointOnHull = endPoint;
+    } while (endPoint != pts.get(0));
 
- 
-
+    empty();
+    for (pt p : convexHull) {
+      pts.add(p);
+    }
+    
+    return this;
+  }
+};  // end class Curve

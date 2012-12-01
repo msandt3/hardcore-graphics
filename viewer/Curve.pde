@@ -249,6 +249,15 @@ class Curve {
       md=min(md,d(M,pts.get(i)));
     return md;
   }
+  ArrayList<String> getSaveString(){
+    ArrayList<String> retlist = new ArrayList<String>();
+    for (int i=0; i<pts.size(); i++) {
+      String temp = str(pts.get(i).x)+","+str(pts.get(i).y)+","+str(pts.get(i).z);
+      retlist.add(temp);
+    }
+    println("length of retlist is - "+retlist.size());
+    return retlist;
+  }
   void savePts() {savePts("data/P.pts");}
   
   void savePts(String fn) { String [] inppts = new String [n+1];
