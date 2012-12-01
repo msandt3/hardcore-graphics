@@ -42,7 +42,8 @@ void initView() {Q=P(0,0,0); I=V(1,0,0); J=V(0,1,0); K=V(0,0,1); F = P(0,0,0); E
 Mesh M=new Mesh(),
      M1=new Mesh(),
      M2=new Mesh(),
-     M3=new Mesh(); // meshes for models M0 and M1
+     M3=new Mesh(),
+     Mnew=new Mesh(); // meshes for models M0 and M1
 
 float volume1=0, volume0=0;
 float sampleDistance=1;
@@ -106,13 +107,18 @@ void setup() {
    s3.k=8;
    s3.readyToDraw(s3Curve);
 
-  M.declareVectors();
+  /*M.declareVectors();
   M1.declareVectors();
   M2.declareVectors();
-  M3.declareVectors();
+  M3.declareVectors();*/
 
    generateMeshes();
-   M.map(0, M1);
+    /*M2.map(M3);
+    M1.map(M2);
+    M1.map(M3);
+    M.map(M1);
+    M.map(M2);
+    M.map(M3);*/
 
    //initSolids();
    edit=false;
@@ -158,7 +164,9 @@ void draw() {
   //s2.draw();
   //s3.draw(); 
 
-  M.drawMorph(time);
+  //if (time==0.5)
+    //M.drawMorph(time);
+  //M1.drawMorph(time);
 
   if(time>=1.0)
     deltaT=-.01;
@@ -185,15 +193,24 @@ void draw() {
      
      // -------------------------------------------------------- show mesh ----------------------------------   
    if(showMesh) { 
-    fill(yellow); stroke(white);
-    M.showFront();
-    M1.showFront();
-    M2.showFront();
-    M3.showFront();
+    fill(yellow); noStroke();
+    Mnew = new Mesh(M, M1, time);
+    Mnew.draw();
+    //M.drawDummy(time, M1);
+    M.drawEdges();
+    M1.drawEdges();
+    //M1.drawDummy(time, M2);
+    M2.drawEdges();
+    //M2.drawDummy(time, M3);
+    M3.drawEdges();
+    //M1.draw();
+    //M1.showFront();
+    //M2.showFront();
+    //M3.showFront();
   } 
    
     // -------------------------- pick mesh corner ----------------------------------   
-   if(pressed) if (keyPressed&&(key=='.')) M.pickc(Pick());
+   //if(pressed) if (keyPressed&&(key=='.')) M.pickc(Pick());
  
  
      // -------------------------------------------------------- show mesh corner ----------------------------------   
@@ -202,7 +219,7 @@ void draw() {
     // -------------------------------------------------------- edit mesh  ----------------------------------   
   if(pressed) {
    
-     if (keyPressed&&(key=='X'||key=='Z')) M.pickc(Pick()); // sets M.sc to the closest corner in M from the pick point
+     //if (keyPressed&&(key=='X'||key=='Z')) M.pickc(Pick()); // sets M.sc to the closest corner in M from the pick point
      }
  
   // -------------------------------------------------------- graphic picking on surface and view control ----------------------------------   
@@ -216,7 +233,7 @@ void draw() {
   // -------------------------------------------------------- Disable z-buffer to display occluded silhouettes and other things ---------------------------------- 
   hint(DISABLE_DEPTH_TEST);  // show on top
  // stroke(black); if(showControl) {C0.showSamples(2);}
-  if(showMesh&&showSilhouette) {stroke(dbrown); M.drawSilhouettes(); }  // display silhouettes
+  //if(showMesh&&showSilhouette) {stroke(dbrown); M.drawSilhouettes(); }  // display silhouettes
   //strokeWeight(2); stroke(red);if(showMesh&&showNMBE) M.showMBEs();  // manifold borders
   camera(); // 2D view to write help text
   writeFooterHelp();
@@ -229,22 +246,23 @@ void draw() {
 } // end draw
 
 void generateMeshes() {
-    M.resetCounters();
     M.makeRevolution(s);
-    M1.resetCounters();
     M1.makeRevolution(s1);
-    M2.resetCounters();
     M2.makeRevolution(s2);
-    M3.resetCounters();
     M3.makeRevolution(s3);
 }
  
  void regenerateMeshes() {
     generateMeshes();
 
-    M.remap(0);
-    //M.map(1, M2);
-    //M.map(2, M3);
+    /*M2.map(M3);
+    M1.map(M2);
+    M1.map(M3);
+    M.map(M1);
+    M.map(M2);
+    M.map(M3);*/
+    
+    
  }
  
  // ****************************************************************************************************************************** INTERRUPTS
@@ -288,7 +306,7 @@ void mouseDragged() {
        }
        s3.readyToDraw(s3Curve);
      }
-     //regenerateMeshes();
+     regenerateMeshes();
   } 
   if(keyPressed&&key=='s') {
      
@@ -392,12 +410,12 @@ void mouseDragged() {
     }
   }
      // move selected vertex of curve C in screen plane
-  if(keyPressed&&key=='b') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
+  /*if(keyPressed&&key=='b') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
   if(keyPressed&&key=='v') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J) ); } // move selected vertex of curve Cb in XZ
   if(keyPressed&&key=='x') {M.add(float(mouseX-pmouseX),I).add(-float(mouseY-pmouseY),J); M.normals();} // move selected vertex in screen plane
   if(keyPressed&&key=='z') {M.add(float(mouseX-pmouseX),I).add(float(mouseY-pmouseY),K); M.normals();}  // move selected vertex in X/Z screen plane
   if(keyPressed&&key=='X') {M.addROI(float(mouseX-pmouseX),I).addROI(-float(mouseY-pmouseY),J); M.normals();} // move selected vertex in screen plane
-  if(keyPressed&&key=='Z') {M.addROI(float(mouseX-pmouseX),I).addROI(float(mouseY-pmouseY),K); M.normals();}  // move selected vertex in X/Z screen plane 
+  if(keyPressed&&key=='Z') {M.addROI(float(mouseX-pmouseX),I).addROI(float(mouseY-pmouseY),K); M.normals();}  // move selected vertex in X/Z screen plane */
   }
 
 void mouseReleased() {
@@ -476,30 +494,30 @@ void keyPressed() {
    regenerateMeshes();
   }
   if(key=='D') {} //move in depth without rotation (draw)
-  if(key=='E') {M.smoothen(); M.normals();}
+  if(key=='E') {/*M.smoothen();*/ M.normals();}
   if(key=='F') {}
   if(key=='G') {}
   if(key=='H') {}
   if(key=='I') {}
   if(key=='J') {}
   if(key=='K') {}
-  if(key=='L') {M.loadMeshVTS().updateON().resetMarkers().computeBox(); F.set(M.Cbox); E.set(P(F,M.rbox*2,K)); for(int i=0; i<10; i++) vis[i]=true;}
+  //if(key=='L') {M.loadMeshVTS().updateON().resetMarkers().computeBox(); F.set(M.Cbox); E.set(P(F,M.rbox*2,K)); for(int i=0; i<10; i++) vis[i]=true;}
   if(key=='M') {}
-  if(key=='N') {M.next();}
+  //if(key=='N') {M.next();}
   if(key=='O') {}
   if(key=='P') {}
   if(key=='Q') {exit();}
   if(key=='R') {}
-  if(key=='S') {M.swing();}
+  //if(key=='S') {M.swing();}
   if(key=='T') {}
   if(key=='U') {}
   if(key=='V') {} 
-  if(key=='W') {M.saveMeshVTS();}
+  //if(key=='W') {M.saveMeshVTS();}
   if(key=='X') {} // drag mesh vertex in xy and neighbors (mouseDragged)
-  if(key=='Y') {M.refine(); M.makeAllVisible();}
+  //if(key=='Y') {M.refine(); M.makeAllVisible();}
   if(key=='Z') {} // drag mesh vertex in xz and neighbors (mouseDragged)
 
-  if(key=='`') {M.perturb();}
+  //if(key=='`') {M.perturb();}
   if(key=='~') {showSpine=!showSpine;}
   if(key=='!') {snapping=true;}
   if(key=='@') {
@@ -518,18 +536,18 @@ void keyPressed() {
     M2.flatShading=!M2.flatShading;
     M3.flatShading=!M3.flatShading;
   }
-  if(key=='+') {M.flip();} // flip edge of M
-  if(key=='-') {M.showEdges=!M.showEdges;}
+  //if(key=='+') {M.flip();} // flip edge of M
+  //if(key=='-') {M.showEdges=!M.showEdges;}
   if(key=='=') //{C.P[5].set(C.P[0]); C.P[6].set(C.P[1]); C.P[7].set(C.P[2]); C.P[8].set(C.P[3]); C.P[9].set(C.P[4]);}
   if(key=='{') {showFrenetQuads=!showFrenetQuads;}
   if(key=='}') {}
   if(key=='|') {}
-  if(key=='[') {initView(); F.set(M.Cbox); E.set(P(F,M.rbox*2,K));}
-  if(key==']') {F.set(M.Cbox);}
+  //if(key=='[') {initView(); F.set(M.Cbox); E.set(P(F,M.rbox*2,K));}
+  //if(key==']') {F.set(M.Cbox);}
   if(key==':') {translucent=!translucent;}
   if(key==';') {showControl=!showControl;}
   if(key=='<') {}
-  if(key=='>') {if (shrunk==0) shrunk=1; else shrunk=0;}
+  //if(key=='>') {if (shrunk==0) shrunk=1; else shrunk=0;}
   if(key=='?') {showHelpText=!showHelpText;}
     if(key=='.') {
       if(edit){

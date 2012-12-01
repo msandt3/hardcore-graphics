@@ -6,6 +6,9 @@
 
 // ===== vector class
 class vec { float x=0,y=0,z=0; 
+   public int hashCode() {
+    return (int) (x + y + z);
+   }
    vec () {}; 
    vec (float px, float py, float pz) {x = px; y = py; z = pz;};
    vec set (float px, float py, float pz) {x = px; y = py; z = pz; return this;}; 

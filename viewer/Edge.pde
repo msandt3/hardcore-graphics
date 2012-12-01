@@ -1,29 +1,25 @@
 class Edge {
-  pt X, Y;
-  List<Integer> triangles;
+  int v1, v2;
   Edge() { };
-  Edge(pt X, pt Y) {
-    this.X = X;
-    this.Y = Y;
-    triangles = new ArrayList<Integer>();
-  };
-  Edge(pt X, pt Y, int nt) {
-    this(X, Y);
-    triangles.add(nt);
+  Edge(int v1, int v2) {
+    this.v1 = v1;
+    this.v2 = v2;
   };
   public boolean equals(Object o) {
     Edge e = (Edge) o;
-    return (this.X == e.X && this.Y == e.Y) || (this.Y == e.X && this.X == e.Y);
-  }
-  public int hashCode() {
-    return (int) (X.x + X.y + X.z + Y.x + Y.y + Y.z);
-  }
-  void addTriangle(int t) {
-  	triangles.add(t);
+    return (this.v1 == e.v1 && this.v2 == e.v2);
   }
 };
 
-Edge edge(pt A, pt B) { return new Edge(A, B); };
-vec V(Edge e) {
-  return V(e.X, e.Y);
+class EdgePoints {
+  pt v1, v2;
+  EdgePoints(pt v1, pt v2) {
+    this.v1 = v1;
+    this.v2 = v2;
+  }
+};
+
+//Edge edge(pt A, pt B) { return new Edge(A, B); };
+vec V(EdgePoints e) {
+  return V(e.v1, e.v2);
 }
