@@ -62,7 +62,7 @@ class MeshMap {
         }
     }
 
-    void edgeToEdge() {
+    /*void edgeToEdge() {
         for (Entry<Integer, List<Integer>> entry1 : m1.edgeTriangles.entrySet()) {
             int e1 = entry1.getKey();
             EdgePoints edge1 = m1.makeEdge(m1.edges.get(e1));
@@ -85,7 +85,7 @@ class MeshMap {
 
                 vec N = N(V(edge1), V(edge2));
 
-                boolean oneTested = true,
+                boolean oneTested = false,
                         sign = false,
                         result = false;
 
@@ -99,8 +99,12 @@ class MeshMap {
                         oneTested = true;
                         sign = d(N, v) < 0;
                     } else {
-                        if ((d(N, v) < 0) != sign) break;
-                        result = true;
+                        if ((d(N, v) < 0) != sign) {
+                            result = false;
+                            break;
+                        } else {
+                            result = true;
+                        }
                     }
                 }
 
@@ -110,14 +114,68 @@ class MeshMap {
                 }
             }
         }
+    }*/
 
+    void edgeToEdge() {
+        List<Integer> visited1 = new ArrayList<Integer>();
+        for (int c1 = 0; c1 < m1.nc(); c1++) {
+            int o1 = m1.o(c1);
+            int tc1 = m1.t(c1);
+            int to1 = m1.t(o1);
+            Edge e1 = new Edge(m1.v(m1.n(o1)), m1.v(m1.p(o1)));
+            EdgePoints edge1 = m1.makeEdge(e1);
 
-        for (int i = 0; i < m1.edgeTriangles.size(); i++) {
-            for (int j = 0; j < m2.edges.size(); j++) {
-                EdgePoints e1 = m1.makeEdge(m1.edges.get(i));
-                EdgePoints e2 = m2.makeEdge(m2.edges.get(j));
-                vec normal = N(V(e1), V(e2));
+            // prevent duplicates
+            /*if (visited.contains(c1)) continue;
+            else {
+                visited.add(c1);
+                visited.add(o1);
+            }*/
 
+            List<Integer> visited2 = new ArrayList<Integer>();
+            for (int c2 = 0; c2 < m2.nc(); c2++) {
+                List<vec> tangents = new ArrayList<vec>();
+
+                int o2 = m2.o(c2);
+                int tc2 = m2.t(c2);
+                int to2 = m2.t(o2);
+                Edge e2 = new Edge(m2.v(m2.n(o2)), m2.v(m2.p(o2)));
+                EdgePoints edge2 = m2.makeEdge(e2);
+
+                tangents.add(N(V(edge1), m1.Nt(tc1)));
+                tangents.add(N(M(V(edge1)), m1.Nt(to1)));
+                tangents.add(N(V(edge2), m2.Nt(tc2)));
+                tangents.add(N(M(V(edge2)), m2.Nt(to2)));
+
+                vec N = N(V(edge1), V(edge2));
+
+                boolean oneTested = false,
+                        sign = false,
+                        result = false;
+
+                for (vec v : tangents) {
+                    if (d(N, v) == 0) {
+                        result = false;
+                        break;
+                    }
+
+                    if (!oneTested) {
+                        oneTested = true;
+                        sign = d(N, v) < 0;
+                    } else {
+                        if ((d(N, v) < 0) != sign) {
+                            result = false;
+                            break;
+                        } else {
+                            result = true;
+                        }
+                    }
+                }
+
+                if (result) {
+                    if (!E2E.containsKey(c1)) E2E.put(c1, new ArrayList<Integer>());
+                    E2E.get(c1).add(c2);
+                }
             }
         }
     }

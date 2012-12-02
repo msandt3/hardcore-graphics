@@ -199,10 +199,10 @@ void draw() {
    if(showMesh) { 
 
     fill(yellow); noStroke();
-    M.draw();
-    M1.draw();
-    M2.draw();
-    M3.draw();
+    //M.drawEdges();
+    //M1.draw();
+    //M2.draw();
+    //M3.draw();
     //M1.drawDummy(time, M2);
     //M2.drawEdges();
     //M2.drawDummy(time, M3);
@@ -210,8 +210,8 @@ void draw() {
 
     noStroke();
     if (drawMorph) {
-    if (neville) {
-      nevilleMorph(M, M1, M2, M3, time, maps);
+      if (neville) {
+        nevilleMorph(M, M1, M2, M3, time, maps);
       } else {
         M.draw(time, M1, maps.get(0).get(0));
       }
