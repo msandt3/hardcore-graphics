@@ -22,7 +22,8 @@ Boolean
   showTwistFreeNormal=false, 
   showHelpText=false,
   neville = false,
-  drawMorph = true;
+  drawMorph = true,
+  bezier = false;
   
   Boolean drawRotate,edit,edit1,edit2,edit3,animate;
 Curve polygon,controlPoints,temp, tempCurve;
@@ -200,9 +201,10 @@ void draw() {
 
     fill(yellow); noStroke();
     //M.drawEdges();
-    //M1.draw();
-    //M2.draw();
-    //M3.draw();
+    M.draw();
+    M1.draw();
+    M2.draw();
+    M3.draw();
     //M1.drawDummy(time, M2);
     //M2.drawEdges();
     //M2.drawDummy(time, M3);
@@ -211,7 +213,7 @@ void draw() {
     noStroke();
     if (drawMorph) {
       if (neville) {
-        nevilleMorph(M, M1, M2, M3, time, maps);
+        nevilleMorph(M, M1, M2, M3, time, maps, bezier);
       } else {
         M.draw(time, M1, maps.get(0).get(0));
       }
@@ -562,6 +564,7 @@ void keyPressed() {
   animate=!animate;
   } // drag curve control point in xz (mouseDragged)
   if(key=='b') {
+    bezier = !bezier;
   }  // move S2 in XZ
   if(key=='c') {} // load curve
   if(key=='d') {

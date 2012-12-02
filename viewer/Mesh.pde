@@ -155,10 +155,6 @@ class Mesh {
         V.add(k);
         int ntri = nt() - 1;
 
-        /*addEdge(i, j, ntri);
-        addEdge(j, k, ntri);
-        addEdge(i, k, ntri);*/
-
         addEdge(i, j, ntri);
         addEdge(i, k, ntri);
         addEdge(j, k, ntri);
@@ -323,87 +319,6 @@ class Mesh {
                 endShape();                
             }
         }
-        /*for (int i = 0; i < 1; i++) {
-            List<Integer> triangles = edgeTriangles.get(i);
-            if (triangles == null) continue;
-            for (int j = 0; j < triangles.size(); j++) {
-                //if (j == 0) continue;
-                EdgePoints edge = makeEdge(edges.get(i));
-                int k = triangles.get(j);
-                stroke(blue);
-                beginShape(LINES);
-                    vertex(g(3 * k + 0));
-                    vertex(g(3 * k + 1));
-                    vertex(g(3 * k + 2));
-                    vertex(g(3 * k + 0));
-                    vertex(g(3 * k + 1));
-                    vertex(g(3 * k + 2));
-                endShape();
-                stroke(red);
-                beginShape(LINES);
-                    vertex(edge.v1);
-                    vertex(edge.v2);
-                endShape();
-
-                stroke(black);
-                show(P(g(3 * k + 0), g(3 * k + 1), g(3 * k + 2)), Nt(k));
-
-                stroke(orange);
-                vec B = N(V(edge), Nt(k));
-                show(P(edge.v1, edge.v2), B);
-            }
-        }*/
-
-        /*for (int i = 0; i < 1; i++) {
-            int o = o(i);
-            int t = t(i);
-            int t2 = t(o);
-            Edge edge = new Edge(v(n(o)), v(p(o)));
-            EdgePoints ep = makeEdge(edge);
-            vec B1 = N(V(ep), Nt(t));
-            vec B2 = N(M(V(ep)), Nt(t2));
-
-            stroke(blue);
-            beginShape(LINES);
-                vertex(g(3 * t + 0));
-                vertex(g(3 * t + 1));
-                vertex(g(3 * t + 2));
-                vertex(g(3 * t + 0));
-                vertex(g(3 * t + 1));
-                vertex(g(3 * t + 2));
-            endShape();
-
-            beginShape(LINES);
-                vertex(g(3 * t2 + 0));
-                vertex(g(3 * t2 + 1));
-                vertex(g(3 * t2 + 2));
-                vertex(g(3 * t2 + 0));
-                vertex(g(3 * t2 + 1));
-                vertex(g(3 * t2 + 2));
-            endShape();
-
-            stroke(red);
-            beginShape(LINES);
-                vertex(ep.v1);
-                vertex(ep.v2);
-            endShape();
-
-            stroke(black);
-            show(P(g(3 * t + 0), g(3 * t + 1), g(3 * t + 2)), Nt(t));
-
-            stroke(orange);
-            show(P(ep.v1, ep.v2), B1);
-            show(P(ep.v1, ep.v2), B2);
-
-        }*/
-
-        /*stroke(black);
-        for (Edge e : edges) {
-            beginShape(LINES);
-                vertex(e.X);
-                vertex(e.Y);
-            endShape();
-        }*/
     }
 
     void draw() {
@@ -437,31 +352,6 @@ class Mesh {
     }
 
     void draw(float time, Mesh m2, MeshMap map) {
-        for (int i = 0; i < nt(); i++) {
-            List<Integer> vertices = map.F2V.get(i);
-            for (Integer morphV : vertices) {
-                pt morphTo = m2.g(morphV);
-                fill(blue);
-                beginShape();
-                    for (int j = 0; j < 3; j++) {
-                        vertex(P(g(3 * i + j), time, morphTo));
-                    }
-                endShape();
-            }
-        }
-
-        for (int i = 0; i < nc(); i++) {
-            List<Integer> faces = map.V2F.get(i);
-            for (Integer face : faces) {
-                fill(red);
-                beginShape();
-                    for (int j = 0; j < 3; j++) {
-                        vertex(P(g(i), time, m2.g(3 * face + j)));
-                    }
-                endShape();
-            }
-        }
-
         for (Entry<Integer, List<Integer>> entry : map.E2E.entrySet()) {
             int c1 = entry.getKey();
             int o1 = this.o(c1);
@@ -486,19 +376,48 @@ class Mesh {
                 endShape();
             }
         }
+
+        for (int i = 0; i < nt(); i++) {
+            List<Integer> vertices = map.F2V.get(i);
+            for (Integer morphV : vertices) {
+                pt morphTo = m2.g(morphV);
+                fill(blue);
+                beginShape();
+                    for (int j = 0; j < 3; j++) {
+                        vertex(P(g(3 * i + j), time, morphTo));
+                    }
+                endShape();
+            }
+        }
+
+        for (int i = 0; i < nc(); i++) {
+            List<Integer> faces = map.V2F.get(i);
+            for (Integer face : faces) {
+                fill(red);
+                beginShape();
+                    for (int j = 0; j < 3; j++) {
+                        vertex(P(g(i), time, m2.g(3 * face + j)));
+                    }
+                endShape();
+            }
+        }
     }
 };
 
-pt IOrdered(int i1, pt A, int i2, pt B, int i3, pt C, int i4, pt D, float time) {
-    pt[] points = new pt[4];
-    points[i1 % 4] = A;
-    points[i2 % 4] = B;
-    points[i3 % 4] = C;
-    points[i4 % 4] = D;
-    return I(0, points[0], 0.33, points[1], 0.66, points[2], 1, points[3], time);
+pt IOrdered(int i1, pt A, int i2, pt B, int i3, pt C, int i4, pt D, float t, boolean bezier) {
+    if (!bezier) {
+        pt[] points = new pt[4];
+        points[i1 % 4] = A;
+        points[i2 % 4] = B;
+        points[i3 % 4] = C;
+        points[i4 % 4] = D;
+        return I(0, points[0], 0.33, points[1], 0.66, points[2], 1, points[3], t);        
+    } else {
+        return P(pow(1 - t, 3), A, 3 * sq(1 - t) * t, B, 3 * (1-t) * sq(t), C, pow(t, 3), D);   
+    }
 }
 
-void nevilleMorph(Mesh m1, Mesh m2, Mesh m3, Mesh m4, float time, List<List<MeshMap>> maps) {
+void nevilleMorph(Mesh m1, Mesh m2, Mesh m3, Mesh m4, float time, List<List<MeshMap>> maps, boolean bezier) {
     Mesh[] in = {m1, m2, m3, m4};
     Mesh M1, M2, M3, M4;
 
@@ -507,9 +426,9 @@ void nevilleMorph(Mesh m1, Mesh m2, Mesh m3, Mesh m4, float time, List<List<Mesh
         M2 = in[(m + 1) % 4];
         M3 = in[(m + 2) % 4];
         M4 = in[(m + 3) % 4];
-        // ============== Vertex to Face
-        fill(green);
-        /*for (int i = 0; i < M1.nt(); i++) {
+        // ============== Face to Vertex
+        fill(blue);
+        for (int i = 0; i < M1.nt(); i++) {
             List<Integer> vertices2 = maps.get(m).get(0).F2V.get(i);
             for (Integer morphV2 : vertices2) {
                 List<Integer> vertices3 = maps.get(m).get(1).F2V.get(i);
@@ -521,17 +440,17 @@ void nevilleMorph(Mesh m1, Mesh m2, Mesh m3, Mesh m4, float time, List<List<Mesh
                         pt morphTo4 = M4.g(morphV4);
                         beginShape();
                         for (int c = 0; c < 3; c++) {
-                            vertex(IOrdered(m, M1.g(3 * i + c), m + 1, morphTo2, m + 2, morphTo3, m + 3, morphTo4, time));    
+                            vertex(IOrdered(m, M1.g(3 * i + c), m + 1, morphTo2, m + 2, morphTo3, m + 3, morphTo4, time, bezier));    
                         }
                         endShape();
                     }
                 }
             }
-        }*/
+        }
 
         // ============== Vertex to Face
         fill(red);
-        /*for (int i = 0; i < M1.nc(); i++) {
+        for (int i = 0; i < M1.nc(); i++) {
             List<Integer> faces2 = maps.get(m).get(0).V2F.get(i);
             for (Integer face2 : faces2) {
                 List<Integer> faces3 = maps.get(m).get(1).V2F.get(i);
@@ -540,38 +459,52 @@ void nevilleMorph(Mesh m1, Mesh m2, Mesh m3, Mesh m4, float time, List<List<Mesh
                     for (Integer face4 : faces4) {
                         beginShape();
                             for (int c = 0; c < 3; c++) {
-                                vertex(IOrdered(m, M1.g(i), m + 1, M2.g(3 * face2 + c), m + 2, M3.g(3 * face3 + c), m + 3, M4.g(3 * face4 + c), time));
+                                vertex(IOrdered(m, M1.g(i), m + 1, M2.g(3 * face2 + c), m + 2, M3.g(3 * face3 + c), m + 3, M4.g(3 * face4 + c), time, bezier));
                             }
                         endShape();
                     }
                 }
             }
-        }*/
+        }
 
-        // ============== Edge to edge
-        fill(blue);
-        for (Entry<Integer, List<Integer>> entry2 : maps.get(m).get(0).E2E.entrySet()) {
-            int e1 = entry2.getKey();
-            EdgePoints edge1 = M1.makeEdge(M1.edges.get(e1));
-            List<Integer> edges2 = entry2.getValue();
-            for (Integer e2 : edges2) {
-                EdgePoints edge2 = M2.makeEdge(M2.edges.get(e2));
-                for (Entry<Integer, List<Integer>> entry3 : maps.get(m).get(1).E2E.entrySet()) {
-                    List<Integer> edges3 = entry3.getValue();
-                    for (Integer e3 : edges3) {
-                        EdgePoints edge3 = M3.makeEdge(M3.edges.get(e3));
-                        for (Entry<Integer, List<Integer>> entry4 : maps.get(m).get(2).E2E.entrySet()) {
-                            List<Integer> edges4 = entry4.getValue();
-                            for (Integer e4 : edges4) {
-                                EdgePoints edge4 = M4.makeEdge(M4.edges.get(e4));
-                                beginShape();
-                                    vertex(IOrdered(m, edge1.v2, m + 1, edge2.v2, m + 2, edge3.v2, m + 3, edge4.v2, time));
-                                    vertex(IOrdered(m, edge1.v1, m + 1, edge2.v2, m + 2, edge3.v2, m + 3, edge4.v2, time));
-                                    vertex(IOrdered(m, edge1.v1, m + 1, edge2.v1, m + 2, edge3.v1, m + 3, edge4.v1, time));
-                                    vertex(IOrdered(m, edge1.v2, m + 1, edge2.v1, m + 2, edge3.v1, m + 3, edge4.v1, time));
-                                endShape();
-                            }
-                        }
+        // ============== Edge to Edge
+        fill(green);
+        for (int c1 = 0; c1 < M1.nc(); c1++) {
+            int o1 = M1.o(c1);
+            int tc1 = M1.t(c1);
+            int to1 = M1.t(o1);
+            Edge e1 = new Edge(M1.v(M1.n(o1)), M1.v(M1.p(o1)));
+            EdgePoints edge1 = M1.makeEdge(e1);
+            List<Integer> mc2 = maps.get(m).get(0).E2E.get(c1); // matching corners
+            if (mc2 == null) continue;
+            for (Integer c2 : mc2) {
+                int o2 = M2.o(c2);
+                int tc2 = M2.t(c2);
+                int to2 = M2.t(o2);
+                Edge e2 = new Edge(M2.v(M2.n(o2)), M2.v(M2.p(o2)));
+                EdgePoints edge2 = M2.makeEdge(e2);
+                List<Integer> mc3 = maps.get(m).get(1).E2E.get(c1);
+                if (mc3 == null) continue;
+                for (Integer c3 : mc3) {
+                    int o3 = M3.o(c3);
+                    int tc3 = M3.t(c3);
+                    int to3 = M3.t(o3);
+                    Edge e3 = new Edge(M3.v(M3.n(o3)), M3.v(M3.p(o3)));
+                    EdgePoints edge3 = M3.makeEdge(e3);
+                    List<Integer> mc4 = maps.get(m).get(2).E2E.get(c1);
+                    if (mc4 == null) continue;
+                    for (Integer c4 : mc4) {
+                        int o4 = M4.o(c4);
+                        int tc4 = M4.t(c4);
+                        int to4 = M4.t(o4);
+                        Edge e4 = new Edge(M4.v(M4.n(o4)), M4.v(M4.p(o4)));
+                        EdgePoints edge4 = M4.makeEdge(e4);
+                        beginShape();
+                            vertex(IOrdered(m, edge1.v2, m + 1, edge2.v2, m + 2, edge3.v2, m + 3, edge4.v2, time, bezier));
+                            vertex(IOrdered(m, edge1.v1, m + 1, edge2.v2, m + 2, edge3.v2, m + 3, edge4.v2, time, bezier));
+                            vertex(IOrdered(m, edge1.v1, m + 1, edge2.v1, m + 2, edge3.v1, m + 3, edge4.v1, time, bezier));
+                            vertex(IOrdered(m, edge1.v2, m + 1, edge2.v1, m + 2, edge3.v1, m + 3, edge4.v1, time, bezier));
+                        endShape();
                     }
                 }
             }
