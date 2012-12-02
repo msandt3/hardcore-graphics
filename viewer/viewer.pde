@@ -23,7 +23,10 @@ Boolean
   showHelpText=false,
   neville = false,
   drawMorph = true,
-  bezier = false;
+  bezier = false,
+  E2E = true,
+  V2F = true,
+  F2V = true;
   
   Boolean drawRotate,edit,edit1,edit2,edit3,animate;
 Curve polygon,controlPoints,temp, tempCurve;
@@ -213,9 +216,9 @@ void draw() {
     noStroke();
     if (drawMorph) {
       if (neville) {
-        nevilleMorph(M, M1, M2, M3, time, maps, bezier);
+        nevilleMorph(M, M1, M2, M3, time, maps, bezier, E2E, V2F, F2V);
       } else {
-        M.draw(time, M1, maps.get(0).get(0));
+        M.draw(time, M1, maps.get(0).get(0), E2E, V2F, F2V);
       }
     }
 
@@ -779,6 +782,16 @@ void keyPressed() {
    edit1=false; 
     
   }
+  if (key == '5') {
+    E2E = !E2E;
+  }
+  if (key == '6') {
+    V2F = !V2F;
+  }
+  if (key == '7') {
+    F2V = !F2V;
+  }
+
  if(key=='0') {w=0;}
 //  for(int i=0; i<10; i++) if (key==char(i+48)) vis[i]=!vis[i];
   
