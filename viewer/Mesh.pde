@@ -3,7 +3,6 @@ class Mesh {
     List<Integer> V;
     List<Integer> O;
     Map<Integer, List<Integer>> vertexEdges;
-    Map<Integer, List<Integer>> edgeTriangles;
     List<Edge> edges;
     List<vec> Nt;
     List<vec> Nv;
@@ -13,6 +12,7 @@ class Mesh {
         empty();
     }
 
+    // this used to literally create a new mesh from morphing
     Mesh(Mesh m1, float time, Mesh m2) {
         empty();
 
@@ -67,7 +67,6 @@ class Mesh {
         V = new ArrayList<Integer>();
         O = new ArrayList<Integer>();
         vertexEdges = new HashMap<Integer, List<Integer>>();
-        edgeTriangles = new HashMap<Integer, List<Integer>>();
         edges = new ArrayList<Edge>();
         Nt = new ArrayList<vec>();
         Nv = new ArrayList<vec>();
@@ -113,9 +112,6 @@ class Mesh {
     }
     
     int addVertex(pt P) {
-        int index = G.indexOf(P);
-        if (index != -1) return index;
-
         G.add(P);
         return G.size() - 1;
     }
@@ -134,8 +130,7 @@ class Mesh {
 
         edges.add(edge);
 
-        boolean foundA = vertexEdges.containsKey(Ai),
-                foundE = edgeTriangles.containsKey(Ei);
+        boolean foundA = vertexEdges.containsKey(Ai);
 
         if (!foundA) vertexEdges.put(Ai, new ArrayList<Integer>());
 
@@ -143,10 +138,6 @@ class Mesh {
         if (!edgeListA.contains(Ei)) {
             edgeListA.add(Ei);
         }
-
-        if (!foundE) edgeTriangles.put(Ei, new ArrayList<Integer>());
-
-        edgeTriangles.get(Ei).add(nt);
     }
 
     int addTriangle(int i, int j, int k) {
@@ -322,7 +313,7 @@ class Mesh {
     }
 
     void draw() {
-        for (int t = 0; t < V.size()/3; t++) {
+        for (int t = 0; t < nt(); t++) {
             beginShape();
             if (flatShading) {
                 vertex(g(3*t));
@@ -351,7 +342,7 @@ class Mesh {
         Set<StartEnd> startEnd = new HashSet<StartEnd>();
     }
 
-    void draw(float time, Mesh m2, MeshMap map, boolean E2E, boolean V2F, boolean F2V) {
+    void draw(float time, Mesh m2, MeshMap map, boolean E2E, boolean F2V, boolean V2F) {
         if (E2E) {
             for (Entry<Integer, List<Integer>> entry : map.E2E.entrySet()) {
                 int c1 = entry.getKey();
@@ -379,9 +370,10 @@ class Mesh {
             }
         }
 
-        if (V2F) {
+        if (F2V) {
             for (int i = 0; i < nt(); i++) {
                 List<Integer> vertices = map.F2V.get(i);
+                //if (vertices.size() < 1) println("Vertex: " + i + "/" + nt());
                 for (Integer morphV : vertices) {
                     pt morphTo = m2.g(morphV);
                     fill(blue);
@@ -394,9 +386,10 @@ class Mesh {
             }
         }
 
-        if (F2V) {
+        if (V2F) {
             for (int i = 0; i < nc(); i++) {
                 List<Integer> faces = map.V2F.get(i);
+                //if (faces.size() < 1) println("Face: " + i + "/" + nc());
                 for (Integer face : faces) {
                     fill(red);
                     beginShape();
@@ -411,15 +404,15 @@ class Mesh {
 };
 
 pt IOrdered(int i1, pt A, int i2, pt B, int i3, pt C, int i4, pt D, float t, boolean bezier) {
+    pt[] points = new pt[4];
+    points[i1 % 4] = A;
+    points[i2 % 4] = B;
+    points[i3 % 4] = C;
+    points[i4 % 4] = D;
     if (!bezier) {
-        pt[] points = new pt[4];
-        points[i1 % 4] = A;
-        points[i2 % 4] = B;
-        points[i3 % 4] = C;
-        points[i4 % 4] = D;
         return I(0, points[0], 0.33, points[1], 0.66, points[2], 1, points[3], t);        
     } else {
-        return P(pow(1 - t, 3), A, 3 * sq(1 - t) * t, B, 3 * (1-t) * sq(t), C, pow(t, 3), D);   
+        return P(pow(1 - t, 3), points[0], 3 * sq(1 - t) * t, points[1], 3 * (1-t) * sq(t), points[2], pow(t, 3), points[3]);   
     }
 }
 
@@ -427,7 +420,7 @@ void nevilleMorph(Mesh m1, Mesh m2, Mesh m3, Mesh m4, float time, List<List<Mesh
     Mesh[] in = {m1, m2, m3, m4};
     Mesh M1, M2, M3, M4;
 
-    for (int m = 0; m < 1; m++) {
+    for (int m = 0; m < 4; m++) {
         M1 = in[m];
         M2 = in[(m + 1) % 4];
         M3 = in[(m + 2) % 4];

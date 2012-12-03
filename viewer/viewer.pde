@@ -87,8 +87,8 @@ void setup() {
   temp=new Curve();
   drawRotate=false;
   s=new Solid(sCurve);
-  s.k=5;
-  s.setOrigin(new pt(-500,200,0));
+  s.k=4;
+  //s.setOrigin(new pt(-500,200,0));
   s.readyToDraw(sCurve);
   ls=s.toLocalSolid();
   //O =s.curves.get(0).pts.get(s.curves.get(0).pts.size()-1);
@@ -98,8 +98,8 @@ void setup() {
    s1Curve=new Curve();
    s1Curve.loadPts("data/P1.pts");
    s1=new Solid(s1Curve);
-   s1.setOrigin(new pt(-250,-400,0));
-   s1.k=4;
+   //s1.setOrigin(new pt(-250,-400,0));
+   s1.k=6;
    s1.readyToDraw(s1Curve);
    ls1=s1.toLocalSolid();
    //s1.readyToDraw(s1Curve);
@@ -107,18 +107,18 @@ void setup() {
    s2Curve=new Curve();
    s2Curve.loadPts("data/P2.pts");
    s2=new Solid(s2Curve);
-   s2.setOrigin(new pt(100,-400,0));
+   //s2.setOrigin(new pt(100,-400,0));
    s2.k=6;
    s2.readyToDraw(s2Curve);
-  // ls2=ls2.toLocalSolid();
+   ls2=s2.toLocalSolid();
    
    s3Curve=new Curve();
    s3Curve.loadPts("data/P3.pts");
    s3=new Solid(s3Curve);
-   s3.setOrigin(new pt(400,200,0));
+   //s3.setOrigin(new pt(400,200,0));
    s3.k=8;
    s3.readyToDraw(s3Curve);
-   //ls3=ls3.toLocalSolid();
+   ls3=s3.toLocalSolid();
 
   /*M.declareVectors();
   M1.declareVectors();
@@ -178,9 +178,9 @@ void draw() {
   //s1.draw();
   //s2.draw();
   //s3.draw(); 
-  if(time>=1.0)
+  if(time>=0.99)
     deltaT=-.01;
-  else if(time<=0)
+  else if(time<=0.01)
     deltaT=.01;
   if(animate){
     time+=deltaT;
@@ -202,16 +202,34 @@ void draw() {
      // -------------------------------------------------------- show mesh ----------------------------------   
    if(showMesh) { 
 
-    fill(yellow); noStroke();
-    //M.drawEdges();
+    //fill(yellow); //noStroke();
+    fill(yellow);
+
+    //s.setOrigin(new pt(-500,200,0));
+//s1.setOrigin(new pt(-250,-400,0));
+//s2.setOrigin(new pt(100,-400,0));
+//s3.setOrigin(new pt(400,200,0));
+
+
+    pushMatrix();
+    translate(-500, 200, 0);
     M.draw();
+    popMatrix();
+
+    pushMatrix();
+    translate(-250, -400, 0);
     M1.draw();
+    popMatrix();
+
+    pushMatrix();
+    translate(100, -400, 0);
     M2.draw();
+    popMatrix();
+
+    pushMatrix();
+    translate(400, 200, 0);
     M3.draw();
-    //M1.drawDummy(time, M2);
-    //M2.drawEdges();
-    //M2.drawDummy(time, M3);
-    //M3.drawEdges();
+    popMatrix();
 
     noStroke();
     if (drawMorph) {
@@ -282,39 +300,23 @@ void generateMeshes() {
     M3.makeRevolution(s3);
 
     maps = new LinkedList<List<MeshMap>>();
-
-    Deque<Mesh> in = new LinkedList<Mesh>();
-    Queue<Mesh> out = new LinkedList<Mesh>();
-    Deque<Integer> inIndex = new LinkedList<Integer>();
-    Queue<Integer> outIndex = new LinkedList<Integer>();
-    in.addLast(M);
-    in.addLast(M1);
-    in.addLast(M2);
-    in.addLast(M3);
-    inIndex.add(0);
-    inIndex.add(1);
-    inIndex.add(2);
-    inIndex.add(3);
+    List<Mesh> in = new LinkedList<Mesh>();
+    in.add(M);
+    in.add(M1);
+    in.add(M2);
+    in.add(M3);
 
     int run = 0;
     while (run < 4) {
-        Mesh current = in.removeFirst();
-        out.clear();
-        out.addAll(in);
-        int currentX = inIndex.removeFirst();
-        outIndex.clear();
-        outIndex.addAll(inIndex);
-
+        Mesh current = in.get(run);
         maps.add(new LinkedList<MeshMap>());
-        for (int i = 0; i < 3; i++) {
-            Mesh next = out.remove();
+        for (int i = 1; i < 4; i++) {
+            Mesh next = in.get((run + i) % 4);
             MeshMap map = new MeshMap(current, next);
             maps.get(run).add(map);
         }
 
         run++;
-        in.addLast(current); // done
-        inIndex.addLast(currentX);
     }
 }
  
@@ -429,6 +431,7 @@ void mouseDragged() {
        s.I.normalize();
        s.J=N(s.K,s.I).normalize();
        s.copyPts(localSolid.toGlobalSolid(s.I,s.J,s.K,s.origin));
+       M.makeRevolution(s);
     }
     else if(edit1){
      localSolid=s1.toLocalSolid(s1.I,s1.J,s1.K,s1.origin);
@@ -441,6 +444,7 @@ void mouseDragged() {
      s1.I.normalize();
      s1.J=N(s1.K,s1.I).normalize();
      s1.copyPts(localSolid.toGlobalSolid(s1.I,s1.J,s1.K,s1.origin));
+     M1.makeRevolution(s1);
     }
     else if(edit2){
      localSolid=s2.toLocalSolid(s2.I,s2.J,s2.K,s2.origin);
@@ -453,6 +457,7 @@ void mouseDragged() {
      s2.I.normalize();
      s2.J=N(s2.K,s2.I).normalize();
      s2.copyPts(localSolid.toGlobalSolid(s2.I,s2.J,s2.K,s2.origin));
+     M2.makeRevolution(s2);
     }
     else if(edit3){
      localSolid=s3.toLocalSolid(s3.I,s3.J,s3.K,s3.origin);
@@ -465,6 +470,7 @@ void mouseDragged() {
      s3.I.normalize();
      s3.J=N(s3.K,s3.I).normalize();
      s3.copyPts(localSolid.toGlobalSolid(s3.I,s3.J,s3.K,s3.origin));
+     M3.makeRevolution(s3);
     }
   }  
   if(keyPressed&&key=='p'){
@@ -481,6 +487,7 @@ void mouseDragged() {
      s.J.normalize();
      s.K=N(s.I,s.J).normalize();
      s.copyPts(localSolid.toGlobalSolid(s.I,s.J,s.K,s.origin));
+     M.makeRevolution(s);
     }
     else if(edit1){
   
@@ -495,6 +502,7 @@ void mouseDragged() {
      s1.J.normalize();
      s1.K=N(s1.I,s1.J).normalize();
      s1.copyPts(localSolid.toGlobalSolid(s1.I,s1.J,s1.K,s1.origin));
+     M1.makeRevolution(s1);
     }
     else if(edit2){
 
@@ -509,6 +517,7 @@ void mouseDragged() {
      s2.J.normalize();
      s2.K=N(s2.I,s2.J).normalize();
      s2.copyPts(localSolid.toGlobalSolid(s2.I,s2.J,s2.K,s2.origin));
+     M2.makeRevolution(s2);
     }
     else if(edit3){
          angle=0.0;
@@ -522,6 +531,7 @@ void mouseDragged() {
      s3.J.normalize();
      s3.K=N(s3.I,s3.J).normalize();
      s3.copyPts(localSolid.toGlobalSolid(s3.I,s3.J,s3.K,s3.origin));
+     M3.makeRevolution(s3);
       
     }
   }
@@ -539,8 +549,47 @@ void mouseDragged() {
      s.I.normalize();
      s.K=N(s.I,s.J).normalize();
      s.copyPts(localSolid.toGlobalSolid(s.I,s.J,s.K,s.origin));
+     M.makeRevolution(s);
     }
-    generateMeshes();
+    else if(edit1){
+     localSolid=s1.toLocalSolid(s1.I,s1.J,s1.K,s1.origin);
+     if(pmouseX>360){
+       angle=(pmouseX%360)*.001;
+       s1.I=s1.I.rotate(angle,s1.I,s1.K); 
+     }
+     else
+       s1.I=s1.I.rotate(pmouseX*.001,s1.I,s1.K);
+     s1.I.normalize();
+     s1.K=N(s1.I,s1.J).normalize();
+     s1.copyPts(localSolid.toGlobalSolid(s1.I,s1.J,s1.K,s1.origin));
+     M1.makeRevolution(s1);
+    }
+       else if(edit2){
+     localSolid=s2.toLocalSolid(s2.I,s2.J,s2.K,s2.origin);
+     if(pmouseX>360){
+       angle=(pmouseX%360)*.001;
+       s2.I=s2.I.rotate(angle,s2.I,s2.K); 
+     }
+     else
+       s2.I=s2.I.rotate(pmouseX*.001,s2.I,s2.K);
+     s2.I.normalize();
+     s2.K=N(s2.I,s2.J).normalize();
+     s2.copyPts(localSolid.toGlobalSolid(s2.I,s2.J,s2.K,s2.origin));
+     M2.makeRevolution(s2);
+    }
+    else if(edit3){
+     localSolid=s3.toLocalSolid(s3.I,s3.J,s3.K,s3.origin);
+     if(pmouseX>360){
+       angle=(pmouseX%360)*.001;
+       s3.I=s3.I.rotate(angle,s3.I,s3.K); 
+     }
+     else
+       s3.I=s3.I.rotate(pmouseX*.001,s3.I,s3.K);
+     s3.I.normalize();
+     s3.K=N(s3.I,s3.J).normalize();
+     s3.copyPts(localSolid.toGlobalSolid(s3.I,s3.J,s3.K,s3.origin));
+     M3.makeRevolution(s3);
+    }
  }
      // move selected vertex of curve C in screen plane
   /*if(keyPressed&&key=='b') //{C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
@@ -570,7 +619,7 @@ void keyPressed() {
     bezier = !bezier;
   }  // move S2 in XZ
   if(key=='c') {} // load curve
-  if(key=='d') {
+  if(key=='n') {
       neville = !neville;
   
   } 
@@ -590,7 +639,6 @@ void keyPressed() {
   if(key=='k') {}
   if(key=='l') {}
   if(key=='m') {showMesh=!showMesh;}
-  if(key=='n') {showNMBE=!showNMBE;}
   if(key=='o') {}
   if(key=='p') {}
   if(key=='q') {}
@@ -664,10 +712,10 @@ void keyPressed() {
   if(key=='V') {} 
   if(key=='W') {
   
-    s.save("data/solid.pts");
-    s1.save("data/solid1.pts");
-    s2.save("data/solid2.pts");
-    s3.save("data/solid3.pts");
+    s.save("data/P.pts");
+    s1.save("data/P1.pts");
+    s2.save("data/P2.pts");
+    s3.save("data/P3.pts");
   
   }
   if(key=='X') {} // drag mesh vertex in xy and neighbors (mouseDragged)

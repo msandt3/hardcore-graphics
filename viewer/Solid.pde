@@ -3,7 +3,7 @@ class Solid{
   float d;//orientation of solid with respect to x axis
   ArrayList <Curve> curves;
   vec I,J,K;
-  pt origin;
+  pt origin = new pt(0, 0, 0);
   Solid(Curve p){//Curve p, int k, float d, float angle){
      curves=new ArrayList<Curve>();
      curves.add(p);
@@ -152,19 +152,21 @@ class Solid{
     temp.k=this.k;
     return temp;
   } 
-  void set(Solid t){
+  Solid set(Solid t){
    this.curves=t.curves;
    this.origin=t.origin;
    this.I=t.I;
    this.J=t.J;
    this.K=t.K; 
    this.k=t.k;
+   return this;
   }
-  void copyPts(Solid s){
+  Solid copyPts(Solid s){
    this.curves.clear();
     for(int i=0;i<s.curves.size();i++){
      this.curves.add(s.curves.get(i));
     } 
+    return this;
   }
   void readyToDraw(Curve c){ 
     Curve tempy= new Curve();

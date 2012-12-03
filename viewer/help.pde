@@ -3,10 +3,11 @@ void writeHelp () {fill(dblue);
     scribe("CONTROLS: ",i++);
     scribe("Edit Solid by pressing 1,2,3,4 for the respective solid ",i++);
     scribe("Control Curve: e: pick and drag points, i: insert point at click, C: make convex, s: subdivide ",i++);
-    scribe("Control Curve: d: delet point at click",i++);
+    scribe("Control Curve: d: delete point at click",i++);
     scribe("Solid: ,: increase number of rotations, ,: decrease number of rotations",i++);
     scribe("Solid: p: rotate solid on it's I axis, o: rotate solid on K axis with mouse, q: spin solid on its J axis",i++);
-    scribe("Misc: a: stop animation, d: neville/single, t: move timestep, g:Gouraud/flat, W: save solid data to file",i++);
+    scribe("Misc: a: stop animation, j: hide morph, d: cubic/linear, b: bezier/neville, t: move timestep", i++);
+    scribe("g:Gouraud/flat, W: save solid data to file",i++);
     scribe("",i++);
 
    }

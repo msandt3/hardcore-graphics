@@ -19,7 +19,6 @@ class EdgePoints {
   }
 };
 
-//Edge edge(pt A, pt B) { return new Edge(A, B); };
 vec V(EdgePoints e) {
   return V(e.v1, e.v2);
 }

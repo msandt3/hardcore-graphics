@@ -34,14 +34,6 @@ class MeshMap {
             ArrayList<Integer> list = new ArrayList<Integer>();
             for (int v = 0; v < m2.V.size(); v++) {
                 if (LSD(m1.Nt(f), m2, m2.v(v))) {
-                    /*for (int i = 0; i < 3; i++) {
-                        int start = 3*f+i;
-                        //StartEnd pair = new StartEnd(start, v);
-                        //if (!startEnd.contains(pair)) list.add(v);
-
-                        //startEnd.add(pair);
-
-                    }*/
                     list.add(v);
                 }
             }
@@ -62,62 +54,7 @@ class MeshMap {
         }
     }
 
-    /*void edgeToEdge() {
-        for (Entry<Integer, List<Integer>> entry1 : m1.edgeTriangles.entrySet()) {
-            int e1 = entry1.getKey();
-            EdgePoints edge1 = m1.makeEdge(m1.edges.get(e1));
-            List<Integer> t1 = entry1.getValue();
-
-            for (Entry<Integer, List<Integer>> entry2 : m2.edgeTriangles.entrySet()) {
-                int e2 = entry2.getKey();
-                EdgePoints edge2 = m2.makeEdge(m2.edges.get(e2));
-                List<Integer> t2 = entry2.getValue();
-
-                List<vec> tangents = new ArrayList<vec>();
-
-                for (Integer t : t1) {
-                    tangents.add(N(V(edge1), m1.Nt(t)));
-                }
-
-                for (Integer t : t2) {
-                    tangents.add(N(V(edge2), m2.Nt(t)));
-                }
-
-                vec N = N(V(edge1), V(edge2));
-
-                boolean oneTested = false,
-                        sign = false,
-                        result = false;
-
-                for (vec v : tangents) {
-                    if (d(N, v) == 0) {
-                        result = false;
-                        break;
-                    }
-
-                    if (!oneTested) {
-                        oneTested = true;
-                        sign = d(N, v) < 0;
-                    } else {
-                        if ((d(N, v) < 0) != sign) {
-                            result = false;
-                            break;
-                        } else {
-                            result = true;
-                        }
-                    }
-                }
-
-                if (result) {
-                    if (!E2E.containsKey(e1)) E2E.put(e1, new ArrayList<Integer>());
-                    E2E.get(e1).add(e2);
-                }
-            }
-        }
-    }*/
-
     void edgeToEdge() {
-        List<Integer> visited1 = new ArrayList<Integer>();
         for (int c1 = 0; c1 < m1.nc(); c1++) {
             int o1 = m1.o(c1);
             int tc1 = m1.t(c1);
@@ -125,14 +62,6 @@ class MeshMap {
             Edge e1 = new Edge(m1.v(m1.n(o1)), m1.v(m1.p(o1)));
             EdgePoints edge1 = m1.makeEdge(e1);
 
-            // prevent duplicates
-            /*if (visited.contains(c1)) continue;
-            else {
-                visited.add(c1);
-                visited.add(o1);
-            }*/
-
-            List<Integer> visited2 = new ArrayList<Integer>();
             for (int c2 = 0; c2 < m2.nc(); c2++) {
                 List<vec> tangents = new ArrayList<vec>();
 
